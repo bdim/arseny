@@ -38,6 +38,10 @@ $config = [
                 ],
             ],
         ],
+        'telegram' => [
+            'class' => 'aki\telegram\Telegram',
+            'botToken' => '387788348:AAHBcxXi9NkxhJz0LIrQku39M1E70DdzIAY',
+        ],
         'db' => $db,        
 
         'urlManager' => [

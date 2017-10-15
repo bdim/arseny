@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "acf1700b24a0c610eeba8d79de2add72",
+    "content-hash": "4c187eb5631f59fac29a5cc95d32a692",
     "packages": [
+        {
+            "name": "aki/yii2-bot-telegram",
+            "version": "1.5.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/akbarjoudi/yii2-bot-telegram.git",
+                "reference": "2bdc56415aa1bef553108ef1fb59d1522d3158a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/akbarjoudi/yii2-bot-telegram/zipball/2bdc56415aa1bef553108ef1fb59d1522d3158a0",
+                "reference": "2bdc56415aa1bef553108ef1fb59d1522d3158a0",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "aki\\telegram\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "akbarjoudi",
+                    "email": "akbar.joody@gmail.ocm"
+                }
+            ],
+            "description": "bot telegram",
+            "keywords": [
+                "extension",
+                "yii2"
+            ],
+            "time": "2017-09-22T11:18:30+00:00"
+        },
         {
             "name": "bower-asset/bootstrap",
             "version": "v3.3.7",
