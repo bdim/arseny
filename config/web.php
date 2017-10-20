@@ -83,18 +83,17 @@ $config = [
                 ],
             ],
         ],
-
+        'cache' => [
+            'class' => 'yii\caching\MemCache',
+        ],
+        'formatter' => [
+            'dateFormat' => 'dd.MM.yyyy',
+            'decimalSeparator' => ',',
+            'thousandSeparator' => ' ',
+            'currencyCode' => 'EUR',
+        ],
 
     ],
-    /*'modules' => [
-        'telegram' => [
-            'class' => 'onmotion\telegram\Module',
-            'API_KEY' => '387788348:AAHBcxXi9NkxhJz0LIrQku39M1E70DdzIAY',
-            'BOT_NAME' => 'arsenysu_bot',
-            'hook_url' => 'https://arseny.su/telegram/default/hook', // must be https!
-            'PASSPHRASE' => 'ghj100'
-        ]
-    ],*/
     'params' => $params,
     'sourceLanguage' => 'en-US',
     'language' => 'ru-RU',

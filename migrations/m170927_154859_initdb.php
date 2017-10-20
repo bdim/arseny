@@ -18,6 +18,7 @@ class m170927_154859_initdb extends Migration
             'fio' => $this->string(),
             'info' => $this->text()->notNull(),
             'auth_key' => $this->string(32)->notNull(),
+            'telegram' => $this->string()->notNull(),
             'password_hash' => $this->string()->notNull(),
             'password_reset_token' => $this->string()->unique(),
             'status' => $this->smallInteger()->notNull()->defaultValue(10),

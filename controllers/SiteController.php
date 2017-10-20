@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\Blog;
+use app\models\Taxonomy;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\debug\models\timeline\DataProvider;
@@ -144,7 +146,7 @@ class SiteController extends Controller
     }
 
 
-    public function actionAddAdmin() {
+    public function actionAddadmin() {
         $model = User::find()->where(['username' => 'admin'])->one();
         if (empty($model)) {
             $user = new User();
@@ -152,7 +154,7 @@ class SiteController extends Controller
             $user->fio = 'admin';
             $user->info = 'Administrator';
             $user->role = User::ROLE_ADMIN;
-            $user->setPassword('admin');
+            $user->setPassword('ghj100Abkz');
             $user->generateAuthKey();
             if ($user->save()) {
                 echo 'good';
@@ -178,10 +180,49 @@ class SiteController extends Controller
     }*/
 
 
-    public function actionTest(){
+    public function actionImport(){
+        die;
+        $content = file_get_contents('../upload/node-export-4.export');
+        $content = json_decode($content);
+
+        $i=0;
+        foreach($content as $node){
+            if (empty($node->body->und[0]->value)){
+                VarDumper::dump($node,10,1);die;
+            }
+            $item = [
+                'created_at' => date('Y-m-d H:i:s',$node->created),
+                'user_id' => $node->uid,
+                'title' => $node->title,
+                'body'  => $node->body->und[0]->value,
+                'publish_date'  => !empty($node->field_date->und[0]->value) ? $node->field_date->und[0]->value : date('Y-m-d H:i:s',$node->created),
+                'tag'  => $node->field_tag->und[0]->tid ? $node->field_tag->und[0]->tid : Taxonomy::TAG_ARSENY,
+            ];
+            $keyword = [];
+            if (is_array($node->field_keyword->und))
+            foreach($node->field_keyword->und as $kw){
+                $keyword[] = $kw->tid;
+            }
+
+            Blog::add($item,$keyword);
+            $i++;
+        }
+        echo "added ".$i;
 	}
 
-	public function actionTelegramset(){
 
+    public function  actionTest(){
+        /*$key = 'test';
+        $data = Yii::$app->cache->getOrSet($key, function () {
+            return 'test '.date('H:i:s');
+        }, 600);
+
+        VarDumper::dump($data,10,1);*/
+
+/*        $t = Taxonomy::getIdByName('прогулка');
+        VarDumper::dump($t,10,1);*/
+
+        $blog = Blog::last();
+        VarDumper::dump($blog,10,1);
     }
 }

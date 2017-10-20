@@ -25,6 +25,7 @@
      * @property integer $created_at
      * @property integer $updated_at
      * @property string $password write-only password
+     * @property string $telegram_id
      */
     class User extends ActiveRecord implements IdentityInterface
     {
@@ -60,7 +61,8 @@
             return [
                 ['status', 'default', 'value' => self::STATUS_ACTIVE],
                 ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
-                ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]]
+                ['role', 'in', 'range' => [self::ROLE_USER, self::ROLE_ADMIN]],
+                ['telegram_id', 'safe']
             ];
         }
 
