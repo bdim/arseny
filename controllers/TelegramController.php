@@ -74,17 +74,16 @@ class TelegramController extends Controller
 
     }
 
-    /** @var telegram Yii::$app->telegram
+    /** @var telegramBot Yii::$app->telegram
      *
      * */
     public function actionWebhook(){
         $data = Yii::$app->telegram->hook();
 
-        //TelegramBot::login($data);
         $bot = new TelegramBot($data);
         if (!$bot->executeCommands()){
             if (!$bot->executeCallbackQuery())
-                $bot->processMessage();
+                    $bot->processMessage();
         }
     }
 

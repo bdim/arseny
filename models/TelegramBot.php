@@ -19,6 +19,7 @@
         const COMMAND_ADD_TEXT  = 'addText';
         const COMMAND_ADD_PHOTO = 'addPhoto';
         const COMMAND_LAST_BLOG = 'lastBlog';
+        const COMMAND_LAST_FILES= 'lastFiles';
 
         public $chatId;
         public $data;
@@ -27,7 +28,8 @@
         protected $textCommands = [
             'новая запись' => TelegramBot::COMMAND_ADD_TEXT,
             'новое фото'   => TelegramBot::COMMAND_ADD_PHOTO,
-            'последние записи'   => TelegramBot::COMMAND_LAST_BLOG,
+            'последние записи'  => TelegramBot::COMMAND_LAST_BLOG,
+            'последние файлы'   => TelegramBot::COMMAND_LAST_FILES,
         ];
 
         public function __construct($data){
@@ -40,7 +42,7 @@
 
             $this->_user = User::findOne(['telegram_id' => $this->chatId]);
 
-            $this->log([$this->data], null);
+            $this->log([$this->data, $this->cachedCommand], null);
         }
 
         public function getUser(){
@@ -175,7 +177,8 @@
                  return false;
         }
 
-        /* обработка текста */
+
+        /* обработка текста после команды */
         public function processMessage(){
 
             /* /start */
@@ -226,12 +229,12 @@
                 }
             }
 
-            /**/
+            /* загрузка фото */
             if ($this->cachedCommand == TelegramBot::COMMAND_ADD_PHOTO){
                 if (!empty($this->data->message->photo)){
                     $fileid = '';
                     foreach ($this->data->message->photo as $photoSize){
-                        if ($photoSize->file_size < 25000)
+                        if ($photoSize->file_size < 100000)
                             $fileid = $photoSize->file_id;
                     }
                     if (empty($fileid))
@@ -240,15 +243,51 @@
                     $photo = Yii::$app->telegram->getFile([
                         'file_id' => $fileid
                     ]);
-                    $this->log([$fileid, $photo]);
-                    //file_put_contents()
+
+                    $caption = $this->data->message->caption;
+
+                    if (!empty($photo)){
+                        $this->log([$photo]);
+
+                        if ($photo->ok){
+                            $filename = $this->downloadPhoto($photo);
+                            if ($filename){
+                                Files::add($filename, Files::TYPE_PHOTO, $caption);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            if ($this->cachedCommand == TelegramBot::COMMAND_LAST_BLOG){
+                if (!empty($this->data->message->text) && is_numeric(($this->data->message->text))){
+                    return $this->commandLastBlog(intval($this->data->message->text));
                 }
             }
 
+            if ($this->cachedCommand == TelegramBot::COMMAND_LAST_FILES){
+                if (!empty($this->data->message->text) && is_numeric(($this->data->message->text))){
+                    return $this->commandLastFiles(intval($this->data->message->text));
+                }
+            }
 
             $this->clearCommandCache();
         }
 
+        public function downloadPhoto($getFile){
+
+            if (!empty($getFile->result->file_path)){
+                $data = file_get_contents('https://api.telegram.org/file/bot'.Yii::$app->telegram->botToken.'/'.$getFile->result->file_path);
+
+                $ext = trim(mb_strtolower(end(explode(".", $getFile->result->file_path))));
+                if (in_array($ext, ['jpg','png','gif','tif'])){
+                    $filename = date("Y-m-d-H-i-s")."-".$this->user->id."-telegram.".$ext;
+                    if (file_put_contents('../upload/photo/'.$filename, $data, FILE_BINARY))
+                        return 'photo/'.$filename;
+                }
+            }
+            return false;
+        }
 
         /* Sending ... */
         protected function sendMessage($response){
@@ -277,6 +316,7 @@
                         ['text'=>"Новая запись"],
                         ['text'=>"Новое фото"],
                         ['text'=>"Последние записи"],
+                        ['text'=>"Последние файлы"],
                     ]
                 ],
                 'resize_keyboard' => true,
@@ -335,8 +375,8 @@
             return $response;
         }
 
-        protected function commandLastBlog(){
-            $blog = array_reverse(Blog::last());
+        protected function commandLastBlog($limit = 3){
+            $blog = array_reverse(Blog::last($limit));
 
             foreach ($blog as $item){
                 $response['text'] = Yii::$app->formatter->asDate($item->publish_date) ." ". strip_tags(html_entity_decode($item->body));
@@ -354,6 +394,17 @@
 
                 $this->sendMessage($response);
             }
+        }
+
+        protected function commandLastFiles($limit = 1){
+            $files = Files::last($limit);
+            $chatId = $this->data->message->from->id;//Получаем chat_id
+
+            foreach($files as $file)
+                Yii::$app->telegram->sendPhoto([
+                    'chat_id' => $chatId,
+                    'photo' => "../upload/".$file->path
+                ]);
         }
 
         protected function commandStop(){

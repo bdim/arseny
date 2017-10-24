@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Blog;
 use app\models\Taxonomy;
+use app\models\TelegramBot;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\debug\models\timeline\DataProvider;
@@ -15,6 +16,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\User;
+use app\models\Files;
 use app\models\SignupForm;
 use yii\helpers\Url;
 use app\components\VarDump;
@@ -221,8 +223,7 @@ class SiteController extends Controller
 
 /*        $t = Taxonomy::getIdByName('прогулка');
         VarDumper::dump($t,10,1);*/
-
-        $blog = Blog::last();
-        VarDumper::dump($blog,10,1);
+        $data = file_get_contents('https://api.telegram.org/file/bot'.Yii::$app->telegram->botToken.'/photos/file_27.jpg');
+        echo $data;
     }
 }

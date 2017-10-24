@@ -116,8 +116,8 @@
             return static::findOne(['id' => $id]);
         }
 
-        public static function last($count = 3){
-            return static::find()->orderBy('id DESC')->limit($count)->all();
+        public static function last($limit = 3){
+            return static::find()->orderBy('id DESC')->limit($limit)->all();
         }
 
         /**
