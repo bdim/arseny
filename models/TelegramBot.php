@@ -26,8 +26,8 @@
 
         protected $_user = null;
         protected $textCommands = [
-            'новая запись' => TelegramBot::COMMAND_ADD_TEXT,
-            'новое фото'   => TelegramBot::COMMAND_ADD_PHOTO,
+            "📄 новая запись" => TelegramBot::COMMAND_ADD_TEXT,
+            "🖼 новое фото"   => TelegramBot::COMMAND_ADD_PHOTO,
             'последние записи'  => TelegramBot::COMMAND_LAST_BLOG,
             'последние файлы'   => TelegramBot::COMMAND_LAST_FILES,
         ];
@@ -253,6 +253,9 @@
                             $filename = $this->downloadPhoto($photo);
                             if ($filename){
                                 Files::add($filename, Files::TYPE_PHOTO, $caption);
+
+                                $response['text'] = 'добавил';
+                                $this->sendMessage($response);
                             }
                         }
                     }
@@ -313,8 +316,10 @@
             $response['reply_markup'] = json_encode([
                 'keyboard'=>[
                     [
-                        ['text'=>"Новая запись"],
-                        ['text'=>"Новое фото"],
+                        ['text'=>"📄 Новая запись",],
+                        ['text'=>"🖼 Новое фото"]
+                    ],
+                    [
                         ['text'=>"Последние записи"],
                         ['text'=>"Последние файлы"],
                     ]
