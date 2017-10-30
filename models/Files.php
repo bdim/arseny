@@ -44,6 +44,7 @@
             return [
                 ['type_id' , 'required'],
                 ['type_id' , 'integer'],
+                ['path' , 'unique'],
                 ['path' , 'required'],
                 ['path' , 'string'],
                 ['caption' , 'string'],
@@ -59,20 +60,33 @@
             return static::findOne(['id' => $id]);
         }
 
+        public static function findbyPath($path)
+        {
+            return static::findOne(['path' => $path]);
+        }
+
         public static function last($limit = 1){
             return static::find()->orderBy('id DESC')->limit($limit)->all();
         }
 
         public static function add($path, $type = 1, $caption ='', $date = null){
             $f = new Files();
+
+            $f0 = Files::findbyPath($path);
+            if (!empty ($f0)) return false;
+
             $f->setAttributes([
                 'path'    => $path,
                 'type_id' => $type,
                 'caption' => $caption
             ]);
+
+            $exif = exif_read_data(ROOT_PATH.'/upload/'.$path);
             if (!is_null($date))
                 $f->date_id = $date;
-            else
+            elseif (!empty($exif['DateTimeOriginal'])){
+                $f->date_id = $exif['DateTimeOriginal'];
+            } else
                 $f->date_id = date('Y-m-d H:i:s');
 
             return $f->save();

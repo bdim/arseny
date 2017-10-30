@@ -17,6 +17,8 @@ class m171024_104628_files extends Migration
              KEY `type_id` (`type_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
+        ALTER TABLE {{%files}} ADD UNIQUE(`path`);
+
         ');
     }
 

@@ -212,6 +212,22 @@ class SiteController extends Controller
         echo "added ".$i;
 	}
 
+    public function actionImportfoto(){
+        $filelist = array();
+        if ($handle = opendir("../upload/photo_jpg")) {
+            while ($entry = readdir($handle)) {
+
+                if (!in_array($entry, ['.','..'])){
+
+                    if (Files::add('photo_jpg/'.$entry, 1 , ''))
+                        $filelist[] = $entry;
+                }
+            }
+            closedir($handle);
+        }
+
+        VarDumper::dump($filelist,10,1);
+    }
 
     public function  actionTest(){
         /*$key = 'test';
@@ -223,7 +239,6 @@ class SiteController extends Controller
 
 /*        $t = Taxonomy::getIdByName('прогулка');
         VarDumper::dump($t,10,1);*/
-        $data = file_get_contents('https://api.telegram.org/file/bot'.Yii::$app->telegram->botToken.'/photos/file_27.jpg');
-        echo $data;
+
     }
 }
