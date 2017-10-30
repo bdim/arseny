@@ -239,6 +239,7 @@ class SiteController extends Controller
 
 /*        $t = Taxonomy::getIdByName('прогулка');
         VarDumper::dump($t,10,1);*/
-
+        $b = Blog::find()->orderBy('id DESC')->limit(1)->one();
+        VarDumper::dump($b->body,10,1);
     }
 }

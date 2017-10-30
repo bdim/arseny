@@ -17,6 +17,7 @@
 
         const COMMAND_START     = '/start';
         const COMMAND_ADD_TEXT  = 'addText';
+        const COMMAND_EDIT_LAST_TEXT  = '/edit';
         const COMMAND_ADD_PHOTO = 'addPhoto';
         const COMMAND_LAST_BLOG = 'lastBlog';
         const COMMAND_LAST_FILES= 'lastFiles';
@@ -202,9 +203,7 @@
 
                         $blog_id = $this->getCache('blog_id');
                         if (!empty($blog_id)){
-
                             Blog::insertText($blog_id, $text);
-
                         } else {
                             $item = [
                                 'created_at'    => date('Y-m-d H:i:s'),
@@ -228,6 +227,28 @@
                     return true;
                 }
             }
+
+            /* редактируем */
+            if ($this->cachedCommand == TelegramBot::COMMAND_EDIT_LAST_TEXT){
+                if (!empty($this->data->message->text)){
+
+                    $text = "<p>".$this->data->message->text."</p>";
+
+                    if ($this->getCache('text') != $text){
+                        $blog = Blog::find()->orderBy('id DESC')->limit(1)->one();
+
+                        $blog->body = $text;
+                        $blog->save();
+
+                        $this->setCache('text', $text);
+                        $this->setCache('blog_id', $blog->id);
+
+                        $response['text'] = 'заменил';
+                        $this->sendMessage($response);
+                    }
+                }
+            }
+
 
             /* загрузка фото */
             if ($this->cachedCommand == TelegramBot::COMMAND_ADD_PHOTO){
@@ -371,6 +392,12 @@
             $this->clearBlogCache();
             $this->setCache('hash', time());
 
+            return $response;
+        }
+
+        protected function commandEdit(){
+            $this->clearBlogCache();
+            $response['text'] = "заменяем последнюю запись, введите текст";
             return $response;
         }
 
