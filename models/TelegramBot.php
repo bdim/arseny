@@ -397,7 +397,10 @@
 
         protected function commandEdit(){
             $this->clearBlogCache();
-            $response['text'] = "заменяем последнюю запись, введите текст";
+            $blog = Blog::find()->orderBy('id DESC')->limit(1)->one();
+            $response['text'] = "Заменяем запись:
+".$blog->body."
+Введите текст: ";
             return $response;
         }
 

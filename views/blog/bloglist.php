@@ -3,13 +3,19 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\GridView;
+use yii\widgets\ListView;
 
 
 $this->title = 'Блог';
 $this->params['breadcrumbs'][] = $this->title;
 
 echo '<br><br>';
-echo GridView::widget([
+echo ListView::widget([
+        'dataProvider' => $dataProvider,
+        'itemView' => '_list',
+    ]);
+
+/*echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         //['class' => 'yii\grid\SerialColumn'],
@@ -21,5 +27,11 @@ echo GridView::widget([
         'body'  => [ 'attribute' => 'body', 'label' => '', 'content' => function($data){ return $data->body;}],
         //['class' => 'yii\grid\ActionColumn','template' => '{update} {delete}'],
     ],
-]);
+]);*/
 ?>
+
+<style>
+    .blog_item div{
+        margin-bottom: 15px;
+    }
+</style>
