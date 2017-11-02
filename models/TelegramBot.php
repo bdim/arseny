@@ -224,6 +224,8 @@
                         $response['text'] = 'записал';
                         $this->sendMessage($response);
                     }
+                    Blog::flushCache();
+
                     return true;
                 }
             }
@@ -245,6 +247,9 @@
 
                         $response['text'] = 'заменил';
                         $this->sendMessage($response);
+
+                        Blog::flushCache();
+
                     }
                 }
             }
@@ -277,6 +282,8 @@
 
                                 $response['text'] = 'добавил';
                                 $this->sendMessage($response);
+
+                                Blog::flushCache();
                             }
                         }
                     }

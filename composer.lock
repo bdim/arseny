@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c187eb5631f59fac29a5cc95d32a692",
+    "content-hash": "73ef1a36c9148f6e2b587cc81b1d09d0",
     "packages": [
         {
             "name": "aki/yii2-bot-telegram",
@@ -306,6 +306,48 @@
                 "markdown-extra"
             ],
             "time": "2017-07-16T21:13:23+00:00"
+        },
+        {
+            "name": "diplodok/yii2-unitegallery-widget",
+            "version": "v1.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/diplodok/yii2-unitegallery-widget.git",
+                "reference": "0adf3546cee243c507b8fe7357c829653da7de58"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/diplodok/yii2-unitegallery-widget/zipball/0adf3546cee243c507b8fe7357c829653da7de58",
+                "reference": "0adf3546cee243c507b8fe7357c829653da7de58",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "diplodok\\Gallerywidget\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Александр Кузнецов",
+                    "email": "project@birbuh.ru"
+                }
+            ],
+            "description": "Простейший виджет на основе галереи Unite Gallery",
+            "keywords": [
+                "extension",
+                "unite gallery",
+                "widget",
+                "yii2"
+            ],
+            "time": "2017-08-30T14:49:54+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",

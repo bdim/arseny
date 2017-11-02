@@ -19,7 +19,8 @@
         "yiisoft/yii2-bootstrap": "~2.0.0",
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "kartik-v/yii2-widget-datepicker": "@dev",
-        "aki/yii2-bot-telegram": "1.5.5"
+        "aki/yii2-bot-telegram": "1.5.5",
+        "diplodok/yii2-unitegallery-widget": "v1.1.7"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

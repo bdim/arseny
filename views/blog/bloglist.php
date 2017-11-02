@@ -15,23 +15,22 @@ echo ListView::widget([
         'itemView' => '_list',
     ]);
 
-/*echo GridView::widget([
-    'dataProvider' => $dataProvider,
-    'columns' => [
-        //['class' => 'yii\grid\SerialColumn'],
-
-        //'id',
-        'publish_date' => [ 'label' => 'Опубликовано', 'content' => function($data){ return Yii::$app->formatter->asDate($data->publish_date);}],
-        'tag' => [ 'label' => 'Ключевые слова', 'content' => function($data){ return implode(", ",$data->tagNames);}],
-        'title' => [ 'attribute' => 'title', 'label' => 'Заголовок'],
-        'body'  => [ 'attribute' => 'body', 'label' => '', 'content' => function($data){ return $data->body;}],
-        //['class' => 'yii\grid\ActionColumn','template' => '{update} {delete}'],
-    ],
-]);*/
 ?>
 
 <style>
     .blog_item div{
         margin-bottom: 15px;
+    }
+    .ug-textpanel-bg {
+        opacity: 0 !important;
+    }
+    .blog_item {
+        margin-top: 20px;
+    }
+    .blog_item_title {
+        font-weight: bold;
+    }
+    .blog_item_one_taxonomy {
+        color: #006DA9;
     }
 </style>

@@ -9,6 +9,7 @@
     use yii\helpers\VarDumper;
     use yii\web\IdentityInterface;
     use yii\web\UrlManager;
+    use \yii\caching\TagDependency;
 
     /**
      * Blog model
@@ -26,9 +27,13 @@
     {
 
         public $tag;
+        public $pub_date;
 
         protected $_tagsIds = null;
         protected $_tagsNames = null;
+
+        const CACHE_DEPENDENCY_KEY = 'blog';
+
         /**
          * @inheritdoc
          */
@@ -61,7 +66,10 @@
         /* relation Taxonomy-map */
         public function getTaxonomy()
         {
-            return $this->hasMany(TaxonomyMap::className(), ['blog_id' => 'id']);
+            $q =  $this->hasMany(TaxonomyMap::className(), ['blog_id' => 'id']);
+            $q->onCondition('tid <> 25'); // telegram
+
+            return $q;
         }
 
         /* id шники тегов*/
@@ -163,7 +171,44 @@
                 )->execute();
         }
 
+        public static function getItemsForDay($date){
+            $blog = Yii::$app->cache->getOrSet('blog-for-date-'.$date, function() use ($date) {
+                $query = Blog::find()->where('DATE(`publish_date`) = :date' , [':date' => $date])->all();
+                return $query;
+            } ,3600*24, static::getCacheDependency());
 
+            return $blog;
+        }
+
+        /* кеш */
+        public static function getCacheDependency(){
+            return new TagDependency(['tags' => static::CACHE_DEPENDENCY_KEY]);
+        }
+
+        public static function flushCache(){
+            TagDependency::invalidate(Yii::$app->cache, static::CACHE_DEPENDENCY_KEY);
+        }
+
+        /* массив дат с сообщениями и/или фотками */
+        public static function getDates(){
+
+            $dates = Yii::$app->cache->getOrSet('blog-dates',function() {
+                $query = Blog::find()->select('DATE(`publish_date`) as pub_date')->groupBy('pub_date')->all();
+                $dates = [];
+                foreach ($query as $q) {
+                    $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
+                }
+                $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
+                foreach ($query as $q) {
+                    $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+                }
+                ksort($dates);
+
+                return $dates;
+            } ,3600*24, static::getCacheDependency());
+
+            return $dates;
+        }
 
 
     }

@@ -45,6 +45,7 @@ if (Yii::$app->user->isGuest) {
     //$menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
     $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
 } else {
+    $menuItems[] = ['label' => 'Блог', 'url' => ['/blog']];
     $menuItems[] = '<li>'
         . Html::beginForm(['/site/logout'], 'post')
         . Html::submitButton(

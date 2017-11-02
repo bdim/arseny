@@ -7,6 +7,7 @@ use app\models\Taxonomy;
 use app\models\TelegramBot;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\debug\models\timeline\DataProvider;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -214,7 +215,7 @@ class SiteController extends Controller
 
     public function actionImportfoto(){
         $filelist = array();
-        if ($handle = opendir("../upload/photo_jpg")) {
+        if ($handle = opendir(IMAGES_PATH.'/photo_jpg')) {
             while ($entry = readdir($handle)) {
 
                 if (!in_array($entry, ['.','..'])){
@@ -239,7 +240,23 @@ class SiteController extends Controller
 
 /*        $t = Taxonomy::getIdByName('прогулка');
         VarDumper::dump($t,10,1);*/
-        $b = Blog::find()->orderBy('id DESC')->limit(1)->one();
-        VarDumper::dump($b->body,10,1);
+
+/*        $q = Yii::$app->db->createCommand('SELECT DATE(`publish_date`) FROM {{%blog}} GROUP BY DATE(`publish_date`) '
+        )->execute();*/
+
+
+        $imgfile = IMAGES_PATH.'/photo/2017-10-24-14-55-331-telegram.jpg';
+
+        $th = Files::thumb($imgfile, 200);
+
+        VarDumper::dump($th,10,1);
+
+    }
+
+    public function actionFlushblog(){
+        if (!Yii::$app->user->isGuest) {
+            Blog::flushCache();
+            echo 'Flushblog';
+        }
     }
 }

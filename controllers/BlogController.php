@@ -13,7 +13,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use yii\helpers\Url;
 use app\models\Blog;
-use app\components\VarDump;
+use app\models\Files;
 
 class BlogController extends Controller
 {
@@ -41,7 +41,26 @@ class BlogController extends Controller
     }
 
     public function actionIndex(){
-        $query = Blog::find()->with('taxonomy');
+
+        $dates = Blog::getDates();
+
+        $provider = new ArrayDataProvider([
+            'allModels' => $dates,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'attributes' => [
+                    'pub_date',
+                ],
+                'defaultOrder' => [
+                    'pub_date' => SORT_DESC,
+                ]
+            ],
+        ]);
+
+
+        /*$query = Blog::find()->with('taxonomy');
 
         $provider = new ActiveDataProvider([
             'query' => $query,
@@ -57,7 +76,7 @@ class BlogController extends Controller
                     'publish_date' => SORT_DESC,
                 ]
             ],
-        ]);
+        ]);*/
 
         return $this->render('bloglist', [
             'dataProvider' => $provider,
