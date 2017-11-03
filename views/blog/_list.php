@@ -19,6 +19,7 @@ use app\models\Files;
     if (!empty($files))
         $out['photo'] = $this->context->renderPartial('_photo',['data' => $files]);
 
+
 ?>
 
 <div class="blog_item">
