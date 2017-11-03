@@ -213,8 +213,6 @@
                                 'publish_date'  => date('Y-m-d H:i:s'),
                             ];
                             $keyword = $this->getCache('tag');
-                            $keyword[] = 'telegram';
-
                             $blog_id = Blog::add($item,$keyword);
                         }
 

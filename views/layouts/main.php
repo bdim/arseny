@@ -8,6 +8,7 @@ use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
+use app\models\User;
 
 AppAsset::register($this);
 ?>
@@ -28,7 +29,7 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
 NavBar::begin([
-    'brandLabel' => '',
+    'brandLabel' => 'Сенькин сайт',
     'brandUrl' => Yii::$app->homeUrl,
     'options' => [
         'class' => 'navbar-inverse navbar-fixed-top',
@@ -45,7 +46,12 @@ if (Yii::$app->user->isGuest) {
     //$menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
     $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
 } else {
+    $isAdmin = User::isUserAdmin(Yii::$app->user->identity);
     $menuItems[] = ['label' => 'Блог', 'url' => ['/blog']];
+    $menuItems[] = ['label' => 'Статьи', 'url' => ['/article']];
+    if ($isAdmin)
+        $menuItems[] = ['label' => 'Пользователи', 'url' => ['/user/list']];
+
     $menuItems[] = '<li>'
         . Html::beginForm(['/site/logout'], 'post')
         . Html::submitButton(
@@ -76,7 +82,7 @@ NavBar::end();
     <div class="container">
         <p class="pull-left"></p>
 
-        <p class="pull-right"><? // Yii::powered() ?></p>
+        <p class="pull-right">© Арсений и папа / 2012 - 2017 г<? // Yii::powered() ?></p>
     </div>
 </footer>
 

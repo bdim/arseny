@@ -72,7 +72,7 @@
             return static::find()->orderBy('id DESC')->limit($limit)->all();
         }
 
-        public static function add($path, $type = 1, $caption ='', $date = null){
+        public static function add($path, $type = 1, $caption ='', $checkExifDate = false, $date = null){
             $f = new Files();
 
             $f0 = Files::findbyPath($path);
@@ -85,6 +85,11 @@
             ]);
 
             $exif = exif_read_data(IMAGES_PATH.'/'.$path);
+
+            // проверка даты из exif. Для импорта важно не нацеплять превьюхи - у них нет exif даты
+            if ($checkExifDate && empty($exif['DateTimeOriginal']))
+                return false;
+
             if (!is_null($date))
                 $f->date_id = $date;
             elseif (!empty($exif['DateTimeOriginal'])){
@@ -95,9 +100,27 @@
             return $f->save();
         }
 
+        /* импорт фоток */
+        public static function importPhotoFromFolder($path){
+
+            if ($handle = opendir(IMAGES_PATH.'/'.$path)) {
+                while ($entry = readdir($handle)) {
+
+                    if (is_dir(IMAGES_PATH.'/'.$path.'/'.$entry)){
+                        if (!in_array($entry, ['.','..'])){
+                            static::importPhotoFromFolder($path.'/'.$entry);
+                        }
+                    } else Files::add($path.'/'.$entry, 1 , '', true);
+                }
+                closedir($handle);
+            }
+
+        }
+
+
         public static function getItemsForDay($date){
             $blog = Yii::$app->cache->getOrSet('files-for-date-'.$date, function() use ($date) {
-                $query = Files::find()->where('DATE(`date_id`) = :date' , [':date' => $date])->all();
+                $query = Files::find()->where('DATE(`date_id`) = :date' , [':date' => $date])->orderBy('date_id')->all();
                 return $query;
             } ,3600*24, Blog::getCacheDependency());
 

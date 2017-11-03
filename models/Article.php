@@ -12,7 +12,7 @@
     use \yii\caching\TagDependency;
 
     /**
-     * Blog model
+     * Article model
      *
      * @property integer $id
      * @property string $created_at
@@ -23,7 +23,7 @@
      * @property string $body
      * @property string $photo
      */
-    class Blog extends ActiveRecord
+    class Article extends ActiveRecord
     {
 
         public $tag;
@@ -32,14 +32,14 @@
         protected $_tagsIds = null;
         protected $_tagsNames = null;
 
-        const CACHE_DEPENDENCY_KEY = 'blog';
+        const CACHE_DEPENDENCY_KEY = 'article';
 
         /**
          * @inheritdoc
          */
         public static function tableName()
         {
-            return '{{%blog}}';
+            return '{{%article}}';
         }
      
         /**
@@ -63,36 +63,6 @@
             ];
         }
 
-        /* relation Taxonomy-map */
-        public function getTaxonomy()
-        {
-            $q =  $this->hasMany(TaxonomyMap::className(), ['blog_id' => 'id']);
-
-            return $q;
-        }
-
-        /* id шники тегов*/
-        public function getTagsIds(){
-            if (is_null($this->_tagsIds)){
-                $this->_tagsIds = [];
-                foreach ($this->taxonomy as $tax){
-                    $this->_tagsIds[] =$tax->tid;
-                }
-            }
-
-            return $this->_tagsIds;
-        }
-
-        public function getTagNames(){
-            if (is_null($this->_tagsNames)){
-                $this->_tagsNames = [];
-                if (!empty($this->tagsIds))
-                    foreach ($this->tagsIds as $id)
-                        $this->_tagsNames[$id] = Taxonomy::getNameById($id);
-            }
-
-            return $this->_tagsNames;
-        }
 
         public function beforeSave($insert){
 
@@ -101,19 +71,9 @@
             return parent::beforeSave($insert);
         }
 
-        public function afterSave($insert, $changedAttributes){
-            if (!empty($this->tag)){
-                $tagId = Taxonomy::getIdByName($this->tag, Taxonomy::VID_BLOG_TAG);
-                Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`blog_id`,`tid` ) VALUES (:blog_id,:tid) ',
-                    [
-                        ':blog_id' => $this->id,
-                        ':tid'     => $tagId,
-                    ]
-                )->execute();
-            }
-
+/*        public function afterSave($insert, $changedAttributes){
             return parent::afterSave($insert, $changedAttributes);
-        }
+        }*/
 
         /**
          * @inheritdoc
@@ -121,10 +81,6 @@
         public static function findIdentity($id)
         {
             return static::findOne(['id' => $id]);
-        }
-
-        public static function last($limit = 3){
-            return static::find()->orderBy('id DESC')->limit($limit)->all();
         }
 
         /**
@@ -136,47 +92,33 @@
         }
 
         public static function add($attributes, $keywords = []){
-            $blog = new Blog();
+            $article = new Article();
 
-            $blog->setAttributes($attributes);
-            if ($blog->save()){
-                $blog->addKeywords($keywords);
-                return $blog->id;
+            $article->setAttributes($attributes);
+            if ($article->save()){
+                $article->addKeywords($keywords);
+                return $article->id;
             }
         }
 
         /* добавить текст в существующую запись */
         public static function insertText($id, $text){
-            $blog = Blog::findIdentity($id);
+            $article = article::findIdentity($id);
 
-            if (!empty($blog)){
-                $blog->body .= $text;
-                $blog->save();
+            if (!empty($article)){
+                $article->body .= $text;
+                $article->save();
             }
         }
 
-        public function addKeywords($keywords){
-            if (empty($keywords)) return;
-
-            if (!is_array($keywords))
-                $keywords = [$keywords];
-
-            foreach ($keywords as $name)
-                Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`blog_id`,`tid` ) VALUES (:blog_id,:tid) ',
-                    [
-                        ':blog_id' => $this->id,
-                        ':tid'     => is_numeric($name) ? $name : Taxonomy::getIdByName($name)
-                    ]
-                )->execute();
-        }
 
         public static function getItemsForDay($date){
-            $blog = Yii::$app->cache->getOrSet('blog-for-date-'.$date, function() use ($date) {
-                $query = Blog::find()->where('DATE(`publish_date`) = :date' , [':date' => $date])->orderBy('publish_date')->all();
+            $article = Yii::$app->cache->getOrSet('article-for-date-'.$date, function() use ($date) {
+                $query = Article::find()->where('DATE(`publish_date`) = :date' , [':date' => $date])->orderBy('publish_date')->all();
                 return $query;
             } ,3600*24, static::getCacheDependency());
 
-            return $blog;
+            return $article;
         }
 
         /* кеш */
@@ -191,11 +133,11 @@
         /* массив дат с сообщениями и/или фотками */
         public static function getDates(){
 
-            $dates = Yii::$app->cache->getOrSet('blog-dates',function() {
-                $query = Blog::find()->select('DATE(`publish_date`) as pub_date')->groupBy('pub_date')->all();
+            $dates = Yii::$app->cache->getOrSet('article-dates',function() {
+                $query = Article::find()->select('DATE(`publish_date`) as pub_date')->groupBy('pub_date')->all();
                 $dates = [];
                 foreach ($query as $q) {
-                    $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
+                    $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'article' => true];
                 }
                 $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
                 foreach ($query as $q) {

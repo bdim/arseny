@@ -4,7 +4,11 @@ use yii\helpers\HtmlPurifier;
 use app\models\Blog;
 use app\models\Files;
 
-    $blog = Blog::getItemsForDay($model['pub_date']);
+    // записи из блога - только своим
+    if (!Yii::$app->user->isGuest) {
+        $blog = Blog::getItemsForDay($model['pub_date']);
+    }
+
     $files = Files::getItemsForDay($model['pub_date']);
 
     $out = [];
@@ -18,8 +22,7 @@ use app\models\Files;
 ?>
 
 <div class="blog_item">
-    <div class="blog_item_title"><?= Yii::$app->formatter->asDate($model['pub_date']) ?> <? //= Html::encode($model->title) ?></div>
-    <div class="blog_item_taxonomy"><? //= implode(", ",$model->tagNames) ?></div>
+    <div class="blog_item_title"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?></div>
     <div class="blog_item_body"><?= HtmlPurifier::process($out['body'])?></div>
     <div class="blog_item_photo"><?= $out['photo'] ?></div>
 </div>

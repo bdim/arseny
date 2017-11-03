@@ -214,20 +214,11 @@ class SiteController extends Controller
 	}
 
     public function actionImportfoto(){
-        $filelist = array();
-        if ($handle = opendir(IMAGES_PATH.'/photo_jpg')) {
-            while ($entry = readdir($handle)) {
-
-                if (!in_array($entry, ['.','..'])){
-
-                    if (Files::add('photo_jpg/'.$entry, 1 , ''))
-                        $filelist[] = $entry;
-                }
-            }
-            closedir($handle);
+        if (!Yii::$app->user->isGuest) {
+            Files::importPhotoFromFolder('photo_jpg');
+            Blog::flushCache();
+            echo 'ok';
         }
-
-        VarDumper::dump($filelist,10,1);
     }
 
     public function  actionTest(){
@@ -244,12 +235,7 @@ class SiteController extends Controller
 /*        $q = Yii::$app->db->createCommand('SELECT DATE(`publish_date`) FROM {{%blog}} GROUP BY DATE(`publish_date`) '
         )->execute();*/
 
-
-        $imgfile = IMAGES_PATH.'/photo/2017-10-24-14-55-331-telegram.jpg';
-
-        $th = Files::thumb($imgfile, 200);
-
-        VarDumper::dump($th,10,1);
+        VarDumper::dump(Yii::$app->user->identity,10,1);
 
     }
 
