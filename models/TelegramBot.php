@@ -11,6 +11,7 @@
     use yii\web\IdentityInterface;
     use yii\web\UrlManager;
     use app\models\User;
+    use app\models\Event;
 
     class TelegramBot extends Model
     {
@@ -151,8 +152,14 @@
 
                 if (method_exists(get_called_class(),$action)){
                     $response = $this->$action();
-                    if ($response)
-                        $this->sendMessage($response);
+                    if ($response){
+                        if (!empty($response['method']))
+                            $method = $response['method'];
+                        else
+                            $method = 'sendMessage';
+
+                        $this->$method($response);
+                    }
                 }
             }
 
@@ -168,8 +175,14 @@
 
                 if (method_exists(get_called_class(),$action)){
                     $response = $this->$action($params);
-                    if ($response)
-                        $this->sendCallback($response);
+                    if ($response){
+                        if (!empty($response['method']))
+                            $method = $response['method'];
+                        else
+                            $method = 'sendCallback';
+
+                        $this->$method($response);
+                    }
                 }
 
                 return true;
@@ -358,6 +371,25 @@
             $this->sendMessage($response);
         }
 
+        /* рассылка спама после события */
+        public static function sendEventMessage(){
+            $event = Event::postEvent();
+
+            if (!empty($event)){
+                $response['text'] = $event->message;
+                $response['chat_id'] = $event->user->telegram_id;
+                $response['reply_markup'] = json_encode([
+                    'inline_keyboard'=>[
+                        [
+                            ['text'=>"Да",'callback_data'=> 'command'.StringUtils::mb_ucfirst(TelegramBot::COMMAND_ADD_TEXT) ],
+                            ['text'=>"Нет",'callback_data'=> 'callback_empty']
+                        ],
+                    ],
+                ]);
+                Yii::$app->telegram->sendMessage($response);
+            }
+        }
+
         /* Log */
         protected function log($array, $appendType = FILE_APPEND){
             file_put_contents('../../telegramlog.txt',date("Y-m-d H:i:s").' : '.json_encode($array) ."\n",$appendType);
@@ -377,6 +409,8 @@
         }
 
         protected function commandAddText(){
+
+            $response['method'] = 'sendMessage';
 
             $response['text'] = "Про кого будем писать?";
 

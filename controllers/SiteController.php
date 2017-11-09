@@ -235,8 +235,9 @@ class SiteController extends Controller
 /*        $q = Yii::$app->db->createCommand('SELECT DATE(`publish_date`) FROM {{%blog}} GROUP BY DATE(`publish_date`) '
         )->execute();*/
 
-        VarDumper::dump(Yii::$app->user->identity,10,1);
+        //VarDumper::dump(Yii::$app->user->identity,10,1);
 
+        TelegramBot::sendEventMessage();
     }
 
     public function actionFlushblog(){

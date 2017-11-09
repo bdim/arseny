@@ -60,7 +60,7 @@ $config = [
 
                 '<module:\w+>/<controler:\w+>/<id:\d+>' => '<module>/<controller>/index',
                 '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>' => '<module>/<controller>/<action>',
-                '<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>',
+                '<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>'
 
             ],
         ],
