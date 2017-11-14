@@ -237,7 +237,7 @@ class SiteController extends Controller
 
         //VarDumper::dump(Yii::$app->user->identity,10,1);
 
-        TelegramBot::sendEventMessage();
+       // TelegramBot::sendEventMessage();
     }
 
     public function actionFlushblog(){

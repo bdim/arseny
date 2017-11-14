@@ -34,7 +34,9 @@
             'последние файлы'   => TelegramBot::COMMAND_LAST_FILES,
         ];
 
-        public function __construct($data){
+        public function __construct($data, $config =[]){
+            parent::__construct($config);
+
             $this->data = $data;
             //Получаем chat_id
             if (isset($data->message))
@@ -44,7 +46,7 @@
 
             $this->_user = User::findOne(['telegram_id' => $this->chatId]);
 
-            $this->log([$this->data, $this->cachedCommand], null);
+            $this->log([$this->data, $this->cachedCommand, $_SERVER], null);
         }
 
         public function getUser(){
@@ -372,7 +374,9 @@
         }
 
         /* рассылка спама после события */
-        public static function sendEventMessage(){
+        public static function sendEventMessage()
+        {
+            /** @var Event $event */
             $event = Event::postEvent();
 
             if (!empty($event)){
@@ -382,7 +386,7 @@
                     'inline_keyboard'=>[
                         [
                             ['text'=>"Да",'callback_data'=> 'command'.StringUtils::mb_ucfirst(TelegramBot::COMMAND_ADD_TEXT) ],
-                            ['text'=>"Нет",'callback_data'=> 'callback_empty']
+                            ['text'=>"Нет",'callback_data'=> 'commandClear']
                         ],
                     ],
                 ]);
@@ -502,7 +506,13 @@
         }
 
 
+        protected function commandClear(){
 
+            $response['method'] = 'sendMessage';
+            $response['text'] = "👌";
+            return $response;
+
+        }
 
 
 
@@ -521,19 +531,15 @@
         }
 
         protected function callback_edit($param){
-            /*$response['text'] = 'редактируем запись '.$param;
-
-            return $response;*/
 
             Yii::$app->telegram->editMessageText([
                'chat_id' => $this->chatId, //Optional
                'message_id' => $this->data->callback_query->message->message_id, //Optional
-               //'inline_message_id' => 'my alert',  //Optional
+
                'text' => $this->data->callback_query->message->text, //require
-               /*'parse_mode' => 123231,  //Optional
-               'disable_web_page_preview' => false or true,  //Optional
-               'reply_markup' => Type InlineKeyboardMarkup,  //Optional*/
+
             ]);
 
         }
+
     }

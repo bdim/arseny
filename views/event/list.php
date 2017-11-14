@@ -4,9 +4,9 @@ $this->title = 'События';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="lease-default-index" data-ng-controller="EventController">
+<div class="event-default-index" data-ng-controller="EventController">
     <div>
-        <h1>All Leases</h1>
+        <h1>All Events</h1>
         <div data-ng-show="events.length > 0">
             <table class="table table-striped table-hover">
                 <thead>
@@ -27,7 +27,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </tbody>
             </table>
         </div>
-        <div data-ng-show="Events.length == 0">
+        <div data-ng-show="events.length == 0">
             No results
         </div>
     </div>

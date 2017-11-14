@@ -8,6 +8,9 @@
 namespace app\commands;
 
 use yii\console\Controller;
+use app\models\Files;
+use app\models\Blog;
+use app\models\TelegramBot;
 
 /**
  * This command echoes the first argument that you have entered.
@@ -28,4 +31,14 @@ class CronController extends Controller
         echo $message . "\n";
     }
 
+    public function actionDailyNight(){
+        /* import photo */
+        Files::importPhotoFromFolder('photo_jpg');
+        Blog::flushCache();
+    }
+
+    public function actionDailyDay(){
+        /* рассылка в телеграм о событиях */
+        TelegramBot::sendEventMessage();
+    }
 }

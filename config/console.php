@@ -9,9 +9,6 @@ $config = [
     'bootstrap' => ['log'],
     'controllerNamespace' => 'app\commands',
     'components' => [
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
-        ],
         'log' => [
             'targets' => [
                 [
@@ -21,6 +18,31 @@ $config = [
             ],
         ],
         'db' => $db,
+        'telegram' => [
+            'class' => 'aki\telegram\Telegram',
+            'botToken' => '387788348:AAHBcxXi9NkxhJz0LIrQku39M1E70DdzIAY',
+        ],
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                    'fileMap' => [
+                        'app' => 'app.php',
+                        'app/auth' => 'auth.php'
+                    ]
+                ],
+            ],
+        ],
+        'cache' => [
+            'class' => 'yii\caching\MemCache',
+        ],
+        'formatter' => [
+            'dateFormat' => 'dd.MM.yyyy',
+            'decimalSeparator' => ',',
+            'thousandSeparator' => ' ',
+            'currencyCode' => 'EUR',
+        ],
     ],
     'params' => $params,
     /*
