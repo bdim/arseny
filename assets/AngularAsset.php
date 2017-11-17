@@ -11,7 +11,12 @@ class AngularAsset extends AssetBundle
         'angular/angular.js',
         'angular-animate/angular-animate.min.js',
         'angular-bootstrap/ui-bootstrap.min.js',
-        'angular-bootstrap/ui-bootstrap-tpls.min.js'
+        'angular-bootstrap/ui-bootstrap-tpls.min.js',
+
+        'js/app.js',
+        'js/controllers.js',
+        'js/directives.js',
+        'js/services.js',
     ];
 
     public $jsOptions = [

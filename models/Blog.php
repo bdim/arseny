@@ -26,9 +26,9 @@
     class Blog extends ActiveRecord
     {
 
-        public $tag;
         public $pub_date;
 
+        protected $_tag; // Это про ког пишем, есть еще keywords - они отдельно
         protected $_tagsIds = null;
         protected $_tagsNames = null;
 
@@ -83,6 +83,13 @@
             return $this->_tagsIds;
         }
 
+        public function getTag(){
+            return $this->getTagsIds();
+        }
+        public function setTag($tag){
+            $this->tag = $tag;
+        }
+
         public function getTagNames(){
             if (is_null($this->_tagsNames)){
                 $this->_tagsNames = [];
@@ -96,21 +103,50 @@
 
         public function beforeSave($insert){
 
+            if (empty($this->user_id))
+                $this->user_id = Yii::$app->user->id;
+
+            if ($this->isNewRecord)
+                $this->created_at = date("Y:m:d H:i:s");
+
+            if (is_null($this->publish_date))
+                $this->publish_date = date("Y:m:d H:i:s");
+
             $this->updated_at = date("Y:m:d H:i:s");
 
             return parent::beforeSave($insert);
         }
 
         public function afterSave($insert, $changedAttributes){
-            if (!empty($this->tag)){
-                $tagId = Taxonomy::getIdByName($this->tag, Taxonomy::VID_BLOG_TAG);
-                Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`blog_id`,`tid` ) VALUES (:blog_id,:tid) ',
+            if (!empty($this->tag)){ // про кого пишем
+
+                // удаляем все теги словаря VID_BLOG_TAG
+                Yii::$app->db->createCommand('DELETE m.* FROM {{%taxonomy_map}} m LEFT JOIN {{%taxonomy_data}} t ON m.`tid` = t.`tid`
+                                                  WHERE m.`blog_id` = :blog_id AND t.`vid` = :vid;',
                     [
                         ':blog_id' => $this->id,
-                        ':tid'     => $tagId,
+                        ':vid'     => Taxonomy::VID_BLOG_TAG,
                     ]
                 )->execute();
+
+                if (!is_array($this->tag))
+                    $this->tag = [$this->tag];
+
+                foreach ($this->tag as $tag){
+                    if (is_numeric($tag))
+                        $tagId = $tag;
+                    else
+                        $tagId = Taxonomy::getIdByName($tag, Taxonomy::VID_BLOG_TAG);
+
+                    Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`blog_id`,`tid` ) VALUES (:blog_id,:tid) ',
+                        [
+                            ':blog_id' => $this->id,
+                            ':tid'     => $tagId,
+                        ]
+                    )->execute();
+                }
             }
+            Blog::flushCache();
 
             return parent::afterSave($insert, $changedAttributes);
         }

@@ -22,8 +22,9 @@
         "aki/yii2-bot-telegram": "1.5.5",
         "diplodok/yii2-unitegallery-widget": "v1.1.7",
         "bower-asset/angular": "^1.5",
-        "bower-asset/angular-animate": "^1.5",
-        "bower-asset/angular-bootstrap": "^2.2"
+
+        "bower-asset/angular-bootstrap": "^2.2",
+        "2amigos/yii2-editable-widget" : "~1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
@@ -61,5 +62,11 @@
                 "config/web.php"
             ]
         }
+    },
+    "provide": {
+        "bower-asset/jquery": "*",
+        "bower-asset/jquery.inputmask": "*",
+        "bower-asset/punycode": "*",
+        "bower-asset/yii2-pjax": "*"
     }
 }

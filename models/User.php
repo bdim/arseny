@@ -66,8 +66,11 @@
             ];
         }
 
-        public static function isUserAdmin($user)
+        public static function isUserAdmin($user = null)
         {
+            if (is_null($user))
+                $user = Yii::$app->user->identity;
+
             if ($user->role == User::ROLE_ADMIN)
             {
                 return true;

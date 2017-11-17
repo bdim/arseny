@@ -72,6 +72,18 @@
             return static::find()->orderBy('id DESC')->limit($limit)->all();
         }
 
+        /* перемещение файла */
+        public static function renameFile($sourse, $distination){
+
+            $path_parts = pathinfo($distination);
+
+            if (!file_exists($path_parts['dirname']))
+                mkdir($path_parts['dirname'], 0777  , true);
+
+            return rename($sourse, $distination);
+
+        }
+        /* добавить файл */
         public static function add($path, $type = 1, $caption ='', $checkExifDate = false, $date = null){
             $f = new Files();
 
@@ -84,8 +96,17 @@
                 'caption' => $caption
             ]);
 
-            $exif = exif_read_data(IMAGES_PATH.'/'.$path);
+            try {
+                $exif = exif_read_data(IMAGES_PATH . '/' . $path);
+            } catch (\Exception $e) {
+                Log::add([
+                    'message' => 'Exif error: '.$path.'; '.$e->getMessage(),
+                    'context' => 'Files::add'
+                ]);
+                static::renameFile(IMAGES_PATH . '/' . $path, IMAGES_PATH . '/errorFiles/' . $path);
 
+                return false;
+            }
             // проверка даты из exif. Для импорта важно не нацеплять превьюхи - у них нет exif даты
             if ($checkExifDate && empty($exif['DateTimeOriginal']))
                 return false;
@@ -117,6 +138,22 @@
 
         }
 
+        /* проверка существования файлов и удаление из базы */
+        public static function removeNonExistFiles(){
+            $files = static::find()->all();
+
+            foreach ($files as $file){
+                $filePath = IMAGES_PATH . '/' . $file->path;
+                if (!file_exists($filePath)){
+                    Log::add([
+                        'message' => 'Not exist: '.$file->path,
+                        'context' => 'checkFilesExist'
+                    ]);
+                    $file->delete();
+                }
+            }
+
+        }
 
         public static function getItemsForDay($date){
             $blog = Yii::$app->cache->getOrSet('files-for-date-'.$date, function() use ($date) {

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Blog;
+use app\models\Log;
 use app\models\Taxonomy;
 use app\models\TelegramBot;
 use Yii;
@@ -157,7 +158,7 @@ class SiteController extends Controller
             $user->fio = 'admin';
             $user->info = 'Administrator';
             $user->role = User::ROLE_ADMIN;
-            $user->setPassword('ghj100Abkz');
+            $user->setPassword('000');
             $user->generateAuthKey();
             if ($user->save()) {
                 echo 'good';
@@ -238,6 +239,8 @@ class SiteController extends Controller
         //VarDumper::dump(Yii::$app->user->identity,10,1);
 
        // TelegramBot::sendEventMessage();
+
+
     }
 
     public function actionFlushblog(){

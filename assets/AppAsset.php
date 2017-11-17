@@ -23,15 +23,11 @@ class AppAsset extends AssetBundle
     ];
     public $js = [
         'player/js/jquery.mkhplayer.js',
-        'js/app.js',
-        'js/controllers.js',
-        'js/directives.js',
-        'js/services.js',
+
     ];
     public $depends = [
         'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
-        'app\assets\AngularAsset'
     ];
 
     public $jsOptions = ['position' => \yii\web\View::POS_HEAD];

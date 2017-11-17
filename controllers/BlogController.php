@@ -14,6 +14,7 @@ use yii\filters\VerbFilter;
 use yii\helpers\Url;
 use app\models\Blog;
 use app\models\Files;
+use dosamigos\editable\EditableAction;
 
 class BlogController extends Controller
 {
@@ -36,8 +37,17 @@ class BlogController extends Controller
         return [
             'error' => [
                 'class' => 'yii\web\ErrorAction',
-            ]
+            ],
+            'update' => [
+                'class' => EditableAction::className(),
+                //'scenario' => 'editable',  //optional
+                'modelClass' => Blog::className(),
+            ],
         ];
+    }
+
+    public function actionUpdate(){
+        Blog::flushCache();
     }
 
     public function actionIndex(){
@@ -58,25 +68,6 @@ class BlogController extends Controller
                 ]
             ],
         ]);
-
-
-        /*$query = Blog::find()->with('taxonomy');
-
-        $provider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                'pageSize' => 10,
-            ],
-            'sort' => [
-                'attributes' => [
-                    'id',
-                    'publish_date',
-                ],
-                'defaultOrder' => [
-                    'publish_date' => SORT_DESC,
-                ]
-            ],
-        ]);*/
 
         return $this->render('bloglist', [
             'dataProvider' => $provider,
