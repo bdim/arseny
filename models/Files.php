@@ -30,6 +30,8 @@
 
         public $pub_date;
 
+        protected $_params;
+
         /**
          * @inheritdoc
          */
@@ -51,8 +53,30 @@
                 ['path' , 'required'],
                 ['path' , 'string'],
                 ['caption' , 'string'],
+                ['params' , 'string'],
                 ['date_id', 'safe' ],
             ];
+        }
+
+        public function beforeSave($insert){
+            if (!empty($this->_params))
+                $this->params = Json::encode($this->_params);
+
+            return parent::beforeSave($insert);
+        }
+
+        public function afterFind(){
+            if (!empty($this->params))
+                $this->_params = Json::decode($this->params);
+        }
+
+
+        public function getParam(){
+            return $this->_params;
+        }
+
+        public function setParam($key, $val){
+            $this->_params[$key] = $val;
         }
 
         /**
@@ -84,32 +108,42 @@
 
         }
         /* добавить файл */
-        public static function add($path, $type = 1, $caption ='', $checkExifDate = false, $date = null){
-            $f = new Files();
+        public static function add($params, $checkExifDate = false, $date = null){
 
+            if (empty($params['type_id']))
+                $params['type_id'] = Files::TYPE_PHOTO;
+
+            if (empty($params['path']))
+                return false;
+
+            $type = $params['type_id'];
+            $path = $params['path'];
+
+            // ищем дубли
             $f0 = Files::findbyPath($path);
             if (!empty ($f0)) return false;
 
-            $f->setAttributes([
-                'path'    => $path,
-                'type_id' => $type,
-                'caption' => $caption
-            ]);
+            $f = new Files();
+            $f->setAttributes($params);
 
-            try {
-                $exif = exif_read_data(IMAGES_PATH . '/' . $path);
-            } catch (\Exception $e) {
-                Log::add([
-                    'message' => 'Exif error: '.$path.'; '.$e->getMessage(),
-                    'context' => 'Files::add'
-                ]);
-                static::renameFile(IMAGES_PATH . '/' . $path, IMAGES_PATH . '/errorFiles/' . $path);
+            $exif = [];
+            if ($type == Files::TYPE_PHOTO && $checkExifDate){
+                try {
+                    $exif = exif_read_data(UPLOAD_PATH . '/' . $path);
+                } catch (\Exception $e) {
+                    Log::add([
+                        'message' => 'Exif error: '.$path.'; '.$e->getMessage(),
+                        'context' => 'Files::add'
+                    ]);
+                    static::renameFile(UPLOAD_PATH . '/' . $path, UPLOAD_PATH . '/errorFiles/' . $path);
 
-                return false;
+                    return false;
+                }
+
+                // проверка даты из exif. Для импорта важно не нацеплять превьюхи - у них нет exif даты
+                if (empty($exif['DateTimeOriginal']))
+                    return false;
             }
-            // проверка даты из exif. Для импорта важно не нацеплять превьюхи - у них нет exif даты
-            if ($checkExifDate && empty($exif['DateTimeOriginal']))
-                return false;
 
             if (!is_null($date))
                 $f->date_id = $date;
@@ -121,17 +155,20 @@
             return $f->save();
         }
 
-        /* импорт фоток */
-        public static function importPhotoFromFolder($path){
+        /* импорт файлов */
+        public static function importFilesFromFolder($path, $type_id = Files::TYPE_PHOTO){
 
-            if ($handle = opendir(IMAGES_PATH.'/'.$path)) {
+            if ($handle = opendir(UPLOAD_PATH.'/'.$path)) {
                 while ($entry = readdir($handle)) {
 
-                    if (is_dir(IMAGES_PATH.'/'.$path.'/'.$entry)){
+                    if (is_dir(UPLOAD_PATH.'/'.$path.'/'.$entry)){
                         if (!in_array($entry, ['.','..'])){
-                            static::importPhotoFromFolder($path.'/'.$entry);
+                            static::importFilesFromFolder($path.'/'.$entry);
                         }
-                    } else Files::add($path.'/'.$entry, 1 , '', true);
+                    } else Files::add([
+                        'path' => $path.'/'.$entry,
+                        'type_id' => $type_id
+                    ], true);
                 }
                 closedir($handle);
             }
@@ -143,7 +180,7 @@
             $files = static::find()->all();
 
             foreach ($files as $file){
-                $filePath = IMAGES_PATH . '/' . $file->path;
+                $filePath = UPLOAD_PATH . '/' . $file->path;
                 if (!file_exists($filePath)){
                     Log::add([
                         'message' => 'Not exist: '.$file->path,
@@ -172,7 +209,7 @@
 
             if (!file_exists($path))
             {
-                $path = IMAGES_PATH.$path;
+                $path = UPLOAD_PATH.$path;
 
                 if (!file_exists($path))
                     return false;
@@ -227,7 +264,7 @@
 
             if (!$absolutePath)
             {
-                $filename = str_replace(IMAGES_PATH, IMAGES_WWW, $filename);
+                $filename = str_replace(UPLOAD_PATH, UPLOAD_WWW, $filename);
                 $filename = str_replace('/', '/', $filename);
                 $filename .= '?r='.$time;
             }

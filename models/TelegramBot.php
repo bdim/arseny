@@ -20,6 +20,7 @@
         const COMMAND_ADD_TEXT  = 'addText';
         const COMMAND_EDIT_LAST_TEXT  = '/edit';
         const COMMAND_ADD_PHOTO = 'addPhoto';
+        const COMMAND_ADD_AUDIO = '/addAudio';
         const COMMAND_LAST_BLOG = 'lastBlog';
         const COMMAND_LAST_FILES= 'lastFiles';
 
@@ -46,7 +47,7 @@
 
             $this->_user = User::findOne(['telegram_id' => $this->chatId]);
 
-            $this->log([$this->data, $this->cachedCommand, $_SERVER], null);
+            $this->log(['data' => $this->data, 'cachedCommand' => $this->cachedCommand], null);
         }
 
         public function getUser(){
@@ -286,12 +287,12 @@
                     $caption = $this->data->message->caption;
 
                     if (!empty($photo)){
-                        $this->log([$photo]);
+                        $this->log(['$photo' => $photo]);
 
                         if ($photo->ok){
                             $filename = $this->downloadPhoto($photo);
                             if ($filename){
-                                Files::add($filename, Files::TYPE_PHOTO, $caption);
+                                Files::add(['path' => $filename, 'type_id' => Files::TYPE_PHOTO, 'caption' => $caption]);
 
                                 $response['text'] = 'добавил';
                                 $this->sendMessage($response);
@@ -303,6 +304,56 @@
                 }
                 return true;
             }
+
+            /* загрузка аудио */
+            if ($this->cachedCommand == TelegramBot::COMMAND_ADD_AUDIO){
+
+
+                if (!empty($this->data->message->audio)){
+                    /* аудио файл */
+                    $data = $this->data->message->audio;
+                } elseif (!empty($this->data->message->voice)){
+                    /* запись звука из телеграмм */
+                    $data = $this->data->message->voice;
+                }
+
+
+                if (!empty($data)){
+                    $fileid = $data->file_id;
+
+                    if (!$fileid) return;
+
+                    $voice = Yii::$app->telegram->getFile([
+                        'file_id' => $fileid
+                    ]);
+
+                    if (!empty($voice)){
+                        $this->log(['$voice' => $voice]);
+
+                        if ($voice->ok){
+                            $filename = $this->downloadAudio($voice, $data->mime_type);
+                            $caption = '';
+                            if (!empty($data->title))
+                                $caption = $data->title;
+
+                            if ($filename){
+                                Files::add(['path' => $filename, 'type_id' => Files::TYPE_AUDIO, 'caption' => $caption,
+                                    'params' => Json::encode(['mime-type' => $data->mime_type])]);
+
+                                $response['text'] = 'добавил';
+                                $this->sendMessage($response);
+
+                                Blog::flushCache();
+                            }
+                        }
+                    }
+                }
+
+
+                return true;
+            }
+
+
             if ($this->cachedCommand == TelegramBot::COMMAND_LAST_BLOG){
                 if (!empty($this->data->message->text) && is_numeric(($this->data->message->text))){
                     return $this->commandLastBlog(intval($this->data->message->text));
@@ -326,8 +377,24 @@
                 $ext = trim(mb_strtolower(end(explode(".", $getFile->result->file_path))));
                 if (in_array($ext, ['jpg','png','gif','tif'])){
                     $filename = date("Y-m-d-H-i-s")."-".$this->user->id."-telegram.".$ext;
-                    if (file_put_contents('../upload/photo/'.$filename, $data, FILE_BINARY))
+                    if (file_put_contents(UPLOAD_PATH.'/photo/'.$filename, $data, FILE_BINARY))
                         return 'photo/'.$filename;
+                }
+            }
+            return false;
+        }
+
+        public function downloadAudio($getFile, $mimeType){
+
+
+            if (!empty($getFile->result->file_path)){
+                $data = file_get_contents('https://api.telegram.org/file/bot'.Yii::$app->telegram->botToken.'/'.$getFile->result->file_path);
+
+                $ext = trim(mb_strtolower(end(explode("/", $mimeType))));
+                if (in_array($ext, ['ogg','mp3','mpg','wav'])){
+                    $filename = date("Y-m-d-H-i-s")."-".$this->user->id."-telegram.".$ext;
+                    if ($res = file_put_contents(UPLOAD_PATH.'/audio/'.$filename, $data, FILE_BINARY))
+                        return 'audio/'.$filename;
                 }
             }
             return false;
@@ -339,7 +406,7 @@
             if (!empty($response)){
                 $response['chat_id'] = $this->chatId;
                 $res = Yii::$app->telegram->sendMessage($response);
-                $this->log([$response, $res]);
+                $this->log(['$response' => $response, '$res' => $res]);
             }
         }
 
@@ -348,7 +415,7 @@
 
                 $response['callback_query_id'] = $this->data->callback_query->id;
                 $res = Yii::$app->telegram->answerCallbackQuery($response);
-                $this->log([$response, $res]);
+                $this->log(['$response' => $response, '$res' => $res]);
             }
         }
 

@@ -13,6 +13,7 @@ class m171024_104628_files extends Migration
             `path` VARCHAR(255) NOT NULL,
             `caption` VARCHAR(255) NOT NULL,
             `date_id` datetime NOT NULL,
+            `params` VARCHAR(255),
              PRIMARY KEY (`id`),
              KEY `type_id` (`type_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;

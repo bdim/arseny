@@ -28,8 +28,9 @@ use app\models\Files;
         $out['body'] .= $this->context->renderPartial('_body_editable',['data' => $item]);
     }
 
-    if (!empty($files))
-        $out['photo'] = $this->context->renderPartial('_photo',['data' => $files]);
+    if (!empty($files)){
+        $out['media'] = $this->context->renderPartial('_media',['data' => $files]);
+    }
 
 
 ?>
@@ -37,7 +38,7 @@ use app\models\Files;
 <div class="blog_item">
     <div class="blog_item_title"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?></div>
     <div class="blog_item_body"><?= $out['body'];?></div>
-    <div class="blog_item_photo"><?= $out['photo'] ?></div>
+    <div class="blog_item_media"><?= $out['media'] ?></div>
 </div>
 <hr>
 

@@ -4,8 +4,8 @@
 defined('YII_DEBUG') or define('YII_DEBUG', true);
 defined('YII_ENV') or define('YII_ENV', 'dev');
 define('ROOT_PATH', dirname(__FILE__). '/..');
-define('IMAGES_PATH', dirname(__FILE__). '/upload');
-define('IMAGES_WWW', '/upload');
+define('UPLOAD_PATH', dirname(__FILE__). '/upload');
+define('UPLOAD_WWW', '/upload');
 
 require(__DIR__ . '/../vendor/autoload.php');
 require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');

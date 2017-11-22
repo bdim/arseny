@@ -11,6 +11,7 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\debug\models\timeline\DataProvider;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
 use yii\helpers\VarDumper;
 use yii\web\Controller;
 use yii\web\Response;
@@ -216,7 +217,7 @@ class SiteController extends Controller
 
     public function actionImportfoto(){
         if (!Yii::$app->user->isGuest) {
-            Files::importPhotoFromFolder('photo_jpg');
+            Files::importFilesFromFolder('photo_jpg');
             Blog::flushCache();
             echo 'ok';
         }
@@ -240,7 +241,10 @@ class SiteController extends Controller
 
        // TelegramBot::sendEventMessage();
 
-
+        /*$data = file_get_contents('https://api.telegram.org/file/bot387788348:AAHBcxXi9NkxhJz0LIrQku39M1E70DdzIAY/voice/file_57');
+        //file_put_contents(UPLOAD_PATH.'/audio/test.ogg', $data, FILE_BINARY);
+        $mimeType = $data->message->voice->mime_type;
+        Files::add(['path' => 'photo/test.ogg', 'type_id' => Files::TYPE_AUDIO, 'params' => Json::encode(['mime-type' => $mimeType])]);*/
     }
 
     public function actionFlushblog(){
