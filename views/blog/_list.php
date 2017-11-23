@@ -15,6 +15,9 @@ use app\models\Files;
     $out = [];
     if (!empty($blog)){
         foreach ($blog as $item) {
+
+            if ($item->isEmpty) continue;
+
             if (User::isUserAdmin())
                 $out['body'] .= $this->context->renderPartial('_body_editable',['data' => $item]);
             else

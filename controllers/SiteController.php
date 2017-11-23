@@ -217,7 +217,15 @@ class SiteController extends Controller
 
     public function actionImportfoto(){
         if (!Yii::$app->user->isGuest) {
-            Files::importFilesFromFolder('photo_jpg');
+            Files::importFilesFromFolder('photo_jpg',Files::TYPE_PHOTO);
+            Blog::flushCache();
+            echo 'ok';
+        }
+    }
+
+    public function actionImportAudio(){
+        if (!Yii::$app->user->isGuest) {
+            Files::importFilesFromFolder('audio', Files::TYPE_AUDIO);
             Blog::flushCache();
             echo 'ok';
         }

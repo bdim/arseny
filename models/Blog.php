@@ -206,6 +206,10 @@
                 )->execute();
         }
 
+        public function getIsEmpty(){
+            return (empty($this->title) && empty($this->body) && empty($this->photo));
+        }
+
         public static function getItemsForDay($date){
             $blog = Yii::$app->cache->getOrSet('blog-for-date-'.$date, function() use ($date) {
                 $query = Blog::find()->where('DATE(`publish_date`) = :date' , [':date' => $date])->orderBy('publish_date')->all();
@@ -225,17 +229,19 @@
         }
 
         /* массив дат с сообщениями и/или фотками */
-        public static function getDates(){
+        public static function getDates($filter=[]){
 
-            $dates = Yii::$app->cache->getOrSet('blog-dates',function() {
-                $query = Blog::find()->select('DATE(`publish_date`) as pub_date')->groupBy('pub_date')->all();
+            $dates = Yii::$app->cache->getOrSet('blog-dates'.json_encode($filter),function() use ($filter) {
+                $query = Blog::find()->select('DATE(`publish_date`) as pub_date')->where('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date')->all();
                 $dates = [];
                 foreach ($query as $q) {
-                    $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
+                    if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
+                        $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
                 }
                 $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
                 foreach ($query as $q) {
-                    $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+                    if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
+                        $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
                 }
                 ksort($dates);
 
@@ -244,6 +250,5 @@
 
             return $dates;
         }
-
 
     }

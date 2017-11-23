@@ -52,7 +52,9 @@ class BlogController extends Controller
 
     public function actionIndex(){
 
-        $dates = Blog::getDates();
+        $filter['year'] = Yii::$app->request->get('year');
+
+        $dates = Blog::getDates($filter);
 
         $provider = new ArrayDataProvider([
             'allModels' => $dates,
@@ -71,6 +73,7 @@ class BlogController extends Controller
 
         return $this->render('bloglist', [
             'dataProvider' => $provider,
+            'model'        => $dates
         ]);
     }
 

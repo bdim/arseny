@@ -150,7 +150,7 @@
             elseif (!empty($exif['DateTimeOriginal'])){
                 $f->date_id = $exif['DateTimeOriginal'];
             } else
-                $f->date_id = date('Y-m-d H:i:s');
+                $f->date_id = date('Y-m-d H:i:s', filemtime (UPLOAD_PATH . '/' . $path));
 
             return $f->save();
         }
@@ -163,7 +163,7 @@
 
                     if (is_dir(UPLOAD_PATH.'/'.$path.'/'.$entry)){
                         if (!in_array($entry, ['.','..'])){
-                            static::importFilesFromFolder($path.'/'.$entry);
+                            static::importFilesFromFolder($path.'/'.$entry, $type_id);
                         }
                     } else Files::add([
                         'path' => $path.'/'.$entry,

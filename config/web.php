@@ -52,15 +52,15 @@ $config = [
                 '/' => 'site/index',
                 //'<action:(login|logout|auth|authback|changepass|resetpass|sendpass|telegramset|telegramhook)>' => 'site/<action>',
 
-                '<controller:\w+>/<id:\d+>' => '<controller>/view',
-                '<controller:\w+>' => '<controller>/index',
+                '<controller:[\w-]+>/<id:\d+>' => '<controller>/view',
+                '<controller:[\w-]+>' => '<controller>/index',
 
-                //'<action:\w+>' => 'site/<action>',
-                '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                //'<action:[\w-]+>' => 'site/<action>',
+                '<controller:[\w-]+>/<action:[\w-]+>' => '<controller>/<action>',
 
-                '<module:\w+>/<controler:\w+>/<id:\d+>' => '<module>/<controller>/index',
-                '<module:\w+>/<controller:\w+>/<action:\w+>/<id:\d+>' => '<module>/<controller>/<action>',
-                '<module:\w+>/<controller:\w+>/<action:\w+>' => '<module>/<controller>/<action>'
+                '<module:[\w-]+>/<controler:[\w-]+>/<id:\d+>' => '<module>/<controller>/index',
+                '<module:[\w-]+>/<controller:[\w-]+>/<action:[\w-]+>/<id:\d+>' => '<module>/<controller>/<action>',
+                '<module:[\w-]+>/<controller:[\w-]+>/<action:[\w-]+>' => '<module>/<controller>/<action>'
 
             ],
         ],
