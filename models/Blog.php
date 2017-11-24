@@ -232,16 +232,34 @@
         public static function getDates($filter=[]){
 
             $dates = Yii::$app->cache->getOrSet('blog-dates'.json_encode($filter),function() use ($filter) {
-                $query = Blog::find()->select('DATE(`publish_date`) as pub_date')->where('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date')->all();
+                $blogIds = [];
+                if (!empty($filter['tag'])){
+                    $nodes = TaxonomyMap::find()->select(['blog_id'])->where("`tid` = :tid", [':tid' => $filter['tag']])->asArray('blog_id')->all();
+                    foreach ($nodes as $node)
+                        $blogIds[] = $node['blog_id'];
+                }
+                $query = Blog::find()->select('DATE(`publish_date`) as pub_date');
+                if (!empty($blogIds)){
+                    $query->where(" `id` in (".implode(',',$blogIds).")");
+                } else {
+                    $query->where('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date');
+                }
+
+                $query = $query->all();
+
                 $dates = [];
                 foreach ($query as $q) {
                     if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
                         $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
                 }
-                $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
-                foreach ($query as $q) {
-                    if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
-                        $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+
+                /* теги прикреплены только к блогу */
+                if (empty($filter['tag'])) {
+                    $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
+                    foreach ($query as $q) {
+                        if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date, 0, 4) == $filter['year']))
+                            $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+                    }
                 }
                 ksort($dates);
 
@@ -251,4 +269,11 @@
             return $dates;
         }
 
+        /* очистка от ненужных записей */
+        public static function clear(){
+            Yii::$app->db->createCommand('DELETE b.* FROM {{%blog}} b
+                                            LEFT JOIN {{%files}} f ON DATE(b.`publish_date`) = DATE(f.`date_id`)
+                                            WHERE b.`title` = "" AND b.`body` = "" AND b.`photo` = "" AND f.id IS NULL '
+            )->execute();
+        }
     }

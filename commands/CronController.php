@@ -32,9 +32,12 @@ class CronController extends Controller
     }
 
     public function actionDailyNight(){
-        /* import photo */
-        Files::importFilesFromFolder('photo_jpg');
+        /* import files */
+        Files::importFilesFromFolder('photo_jpg', Files::TYPE_PHOTO);
         Files::removeNonExistFiles();
+
+        Blog::clear();
+
         Blog::flushCache();
     }
 
