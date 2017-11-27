@@ -543,13 +543,28 @@
 
         protected function commandLastFiles($limit = 1){
             $files = Files::last($limit);
+
             $chatId = $this->data->message->from->id;//Получаем chat_id
 
-            foreach($files as $file)
-                Yii::$app->telegram->sendPhoto([
+            foreach($files as $file){
+                $this->log(['$files' => UPLOAD_PATH.$file->path]);
+                if ($file->type_id == Files::TYPE_PHOTO)
+                    Yii::$app->telegram->sendPhoto([
+                        'chat_id' => $chatId,
+                        'photo' => UPLOAD_PATH."/".$file->path
+                    ]);
+                elseif ($file->type_id == Files::TYPE_AUDIO)
+                    Yii::$app->telegram->sendAudio([
                     'chat_id' => $chatId,
-                    'photo' => "../upload/".$file->path
+                    'audio' => UPLOAD_PATH."/".$file->path
                 ]);
+                elseif ($file->type_id == Files::TYPE_VIDEO)
+                    Yii::$app->telegram->sendVideo([
+                    'chat_id' => $chatId,
+                    'video' => UPLOAD_PATH."/".$file->path
+                ]);
+
+            }
         }
 
         protected function commandStop(){
