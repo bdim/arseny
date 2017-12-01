@@ -46,10 +46,6 @@ class BlogController extends Controller
         ];
     }
 
-    public function actionUpdate(){
-        Blog::flushCache();
-    }
-
     public function actionIndex(){
 
         $filter['year'] = Yii::$app->request->get('year');

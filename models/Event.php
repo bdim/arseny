@@ -59,6 +59,21 @@
             return static::findOne(['id' => $id]);
         }
 
+        public function beforeSave($insert){
+
+            if (empty($this->user_id))
+                $this->user_id = Yii::$app->user->id;
+
+            if (is_null($this->publish_date))
+                $this->publish_date = date("Y:m:d H:i:s");
+
+            return parent::beforeSave($insert);
+        }
+
+        public function afterSave($insert, $changedAttributes){
+            Blog::flushCache();
+            return parent::afterSave($insert, $changedAttributes);
+        }
 
         public static function postEvent(){
             $date = date('Y-m-d', time() - 24*3600);

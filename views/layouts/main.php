@@ -49,8 +49,10 @@ if (Yii::$app->user->isGuest) {
     $isAdmin = User::isUserAdmin(Yii::$app->user->identity);
     $menuItems[] = ['label' => 'Блог', 'url' => ['/blog']];
     $menuItems[] = ['label' => 'Статьи', 'url' => ['/article']];
-    if ($isAdmin)
+    if ($isAdmin){
         $menuItems[] = ['label' => 'Пользователи', 'url' => ['/user/list']];
+        $menuItems[] = ['label' => 'События', 'url' => ['/event/list']];
+    }
 
     $menuItems[] = '<li>'
         . Html::beginForm(['/site/logout'], 'post')
