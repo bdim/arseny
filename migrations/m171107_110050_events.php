@@ -9,14 +9,18 @@ class m171107_110050_events extends Migration
         $this->execute('
         CREATE TABLE IF NOT EXISTS {{%event}} (
             `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-            `event_date` date NOT NULL,
-            `child_id` VARCHAR(255) NOT NULL DEFAULT 0,
+            `date_start` date NOT NULL,
+            `date_end` date NOT NULL,
+            `publish_date` datetime NOT NULL,
             `user_id`  VARCHAR(255) NOT NULL DEFAULT 0,
             `title` text NOT NULL,
+            `body` text NOT NULL,
             `post_text` text NOT NULL,
 
               PRIMARY KEY (`id`),
-              KEY `event_date` (`event_date`)
+              KEY `publish_date` (`publish_date`),
+              KEY `date_start` (`date_start`),
+              KEY `date_end` (`date_end`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
         ');

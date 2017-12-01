@@ -253,6 +253,7 @@ class SiteController extends Controller
         //file_put_contents(UPLOAD_PATH.'/audio/test.ogg', $data, FILE_BINARY);
         $mimeType = $data->message->voice->mime_type;
         Files::add(['path' => 'photo/test.ogg', 'type_id' => Files::TYPE_AUDIO, 'params' => Json::encode(['mime-type' => $mimeType])]);*/
+
     }
 
     public function actionFlushblog(){

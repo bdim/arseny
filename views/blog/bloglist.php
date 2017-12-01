@@ -65,6 +65,9 @@ echo ListView::widget([
     .blog_item {
         margin-top: 20px;
     }
+    .event_body_item{
+        background-color: seashell;
+    }
     .blog_item_title {
         font-weight: bold;
     }
@@ -80,3 +83,4 @@ echo ListView::widget([
         color : black !important;
     }
 </style>
+

@@ -15,7 +15,8 @@
      * Taxonomy model
      *
      * @property integer $tid
-     * @property integer $blog_id
+     * @property integer $model_id
+     * @property string $model_name
      */
     class TaxonomyMap extends ActiveRecord
     {
@@ -35,16 +36,16 @@
         public function rules()
         {
             return [
-                [['blog_id', 'tid'], 'safe' ],
+                [['model_id', 'model_name', 'tid'], 'safe' ],
             ];
         }
 
         /**
          * @inheritdoc
          */
-        public static function findIdentity($tid, $blog_id)
+        public static function findIdentity($tid, $model_id, $model_name = 'Blog')
         {
-            return static::findOne(['tid' => $tid,'blog_id' => $blog_id, ]);
+            return static::findOne(['tid' => $tid,'model_id' => $model_id,'model_name' => $model_name, ]);
         }
 
     }

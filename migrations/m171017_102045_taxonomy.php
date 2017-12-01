@@ -8,11 +8,13 @@ class m171017_102045_taxonomy extends Migration
     {
         $this->execute('
         CREATE TABLE IF NOT EXISTS {{%taxonomy_map}} (
-            `blog_id` int(10) UNSIGNED NOT NULL,
+            `model_id` int(10) UNSIGNED NOT NULL,
+            `model_name` enum("Blog","Files","Event","Article") NOT NULL DEFAULT "Blog",
             `tid` int(10) UNSIGNED NOT NULL,
-              PRIMARY KEY `tid_blog` (`tid`,`blog_id`)
+              PRIMARY KEY `tid_blog` (`tid`,`model_id`, `model_name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
+        ALTER TABLE {%taxonomy_map}} ADD KEY `model_name` (`model_name`)
         ');
     }
 

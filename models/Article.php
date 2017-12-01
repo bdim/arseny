@@ -26,11 +26,12 @@
     class Article extends ActiveRecord
     {
 
+        public $_tag; // Это про ког пишем, есть еще keywords - они отдельно
+        public $_tagsIds = null;
+        public $_tagsNames = null;
+
         public $tag;
         public $pub_date;
-
-        protected $_tagsIds = null;
-        protected $_tagsNames = null;
 
         const CACHE_DEPENDENCY_KEY = 'article';
 
@@ -151,5 +152,20 @@
             return $dates;
         }
 
+        /* id шники тегов*/
+        public function getTagsIds(){
+            return Taxonomy::getTagsIds($this);
+        }
+
+        public function getTag(){
+            return $this->getTagsIds();
+        }
+        public function setTag($tag){
+            $this->tag = $tag;
+        }
+
+        public function getTagNames(){
+            return Taxonomy::getTagNames($this);
+        }
 
     }

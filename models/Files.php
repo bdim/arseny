@@ -49,6 +49,7 @@
             return [
                 ['type_id' , 'required'],
                 ['type_id' , 'integer'],
+                ['event_id' , 'integer'],
                 ['path' , 'unique'],
                 ['path' , 'required'],
                 ['path' , 'string'],
@@ -192,10 +193,22 @@
 
         }
 
-        public static function getItemsForDay($date){
-            $blog = Yii::$app->cache->getOrSet('files-for-date-'.$date, function() use ($date) {
-                $query = Files::find()->where('DATE(`date_id`) = :date' , [':date' => $date])->orderBy('date_id')->all();
-                return $query;
+        public static function getItemsForDay($date, $ignoreEvent = true){
+            $blog = Yii::$app->cache->getOrSet('files-for-date-'.$date, function() use ($date, $ignoreEvent) {
+                $query = Files::find()->where('DATE(`date_id`) = :date' , [':date' => $date])->orderBy('date_id');
+                if ($ignoreEvent)
+                    $query->andWhere("`event_id` = 0");
+
+                return $query->all();
+            } ,3600*24, Blog::getCacheDependency());
+
+            return $blog;
+        }
+
+        public static function getItemsForEvent($id){
+            $blog = Yii::$app->cache->getOrSet('files-for-event-'.$id, function() use ($id) {
+                $query = Files::find()->where('`event_id` = :event_id' , [':event_id' => $id])->orderBy('date_id');
+                return $query->all();
             } ,3600*24, Blog::getCacheDependency());
 
             return $blog;

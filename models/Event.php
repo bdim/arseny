@@ -2,6 +2,7 @@
     namespace app\models;
      
     use app\components\StringUtils;
+    use app\components\TaxonomyBehavior;
     use Yii;
     use yii\base\NotSupportedException;
     use yii\behaviors\TimestampBehavior;
@@ -11,6 +12,7 @@
     use yii\web\IdentityInterface;
     use yii\web\UrlManager;
     use app\models\Taxonomy;
+    use yii\caching\TagDependency;
 
     /**
      * Event model
@@ -18,6 +20,7 @@
     class Event extends ActiveRecord
     {
 
+        public $pub_date;
 
         /**
          * @inheritdoc
@@ -34,7 +37,17 @@
         public function rules()
         {
             return [
-                [['event_date', 'child_id', 'user_id', 'title', 'post_text'], 'safe' ],
+                [['date_start', 'date_end', 'publish_date', 'user_id', 'title', 'body', 'post_text'], 'safe' ],
+            ];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function behaviors()
+        {
+            return [
+                TaxonomyBehavior::className()
             ];
         }
 
@@ -46,6 +59,7 @@
             return static::findOne(['id' => $id]);
         }
 
+
         public static function postEvent(){
             $date = date('Y-m-d', time() - 24*3600);
             return static::findOne(['event_date' => $date]);
@@ -53,7 +67,7 @@
 
         public function getMessage(){
             $message = 'Привет! ';
-            $message .= $this->title ? 'Вчера у '.Taxonomy::$tag_case[$this->child_id]['р']. ' произошло событие: '.$this->title.'. ' . 'Есть что рассказать?'  : '';
+            // $message .= $this->title ? 'Вчера у '.Taxonomy::$tag_case[$this->child_id]['р']. ' произошло событие: '.$this->title.'. ' . 'Есть что рассказать?'  : '';
             $message .= $this->post_text ? $this->post_text.'. ' : '';
 
             return $message;
@@ -62,5 +76,24 @@
         /* relation User */
         public function getUser(){
             return $this->hasOne(User::className(), ['id' => 'user_id']);
+        }
+
+
+        /* кеш */
+        public static function getCacheDependency(){
+            return new TagDependency(['tags' => Blog::CACHE_DEPENDENCY_KEY]);
+        }
+
+        public static function flushCache(){
+            TagDependency::invalidate(Yii::$app->cache, Blog::CACHE_DEPENDENCY_KEY);
+        }
+
+        public static function getItemsForDay($date){
+            $items = Yii::$app->cache->getOrSet('event-for-date-'.$date, function() use ($date) {
+                $query = Event::find()->where('DATE(`publish_date`) = :date' , [':date' => $date])->orderBy('publish_date')->all();
+                return $query;
+            } ,3600*24, static::getCacheDependency());
+
+            return $items;
         }
     }

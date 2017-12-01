@@ -3,6 +3,7 @@
      
     use aki\telegram\Telegram;
     use app\components\StringUtils;
+    use PHPUnit\Framework\Exception;
     use Yii;
     use yii\base\Model;
     use yii\base\NotSupportedException;
@@ -270,7 +271,7 @@
 
 
             /* загрузка фото */
-            if ($this->cachedCommand == TelegramBot::COMMAND_ADD_PHOTO){
+            if ($this->cachedCommand == TelegramBot::COMMAND_ADD_PHOTO || empty($this->cachedCommand)){
                 if (!empty($this->data->message->photo)){
                     $fileid = '';
                     foreach ($this->data->message->photo as $photoSize){
@@ -284,7 +285,9 @@
                         'file_id' => $fileid
                     ]);
 
-                    $caption = $this->data->message->caption;
+                    $caption ='';
+                    if (!empty($this->data->message->caption))
+                        $caption = $this->data->message->caption;
 
                     if (!empty($photo)){
                         $this->log(['$photo' => $photo]);
@@ -292,12 +295,18 @@
                         if ($photo->ok){
                             $filename = $this->downloadPhoto($photo);
                             if ($filename){
-                                Files::add(['path' => $filename, 'type_id' => Files::TYPE_PHOTO, 'caption' => $caption]);
+                                try {
+                                    Files::add(['path' => $filename, 'type_id' => Files::TYPE_PHOTO, 'caption' => $caption]);
 
-                                $response['text'] = 'добавил';
-                                $this->sendMessage($response);
+                                    $response['text'] = 'добавил';
+                                    $this->sendMessage($response);
 
-                                Blog::flushCache();
+                                    Blog::flushCache();
+                                } catch (Exception $e){
+                                    unlink(UPLOAD_PATH."/".$filename);
+                                    $this->log(['error' => $e->getMessage()]);
+                                }
+
                             }
                         }
                     }
@@ -306,7 +315,7 @@
             }
 
             /* загрузка аудио */
-            if ($this->cachedCommand == TelegramBot::COMMAND_ADD_AUDIO){
+            if ($this->cachedCommand == TelegramBot::COMMAND_ADD_AUDIO || empty($this->cachedCommand)){
 
 
                 if (!empty($this->data->message->audio)){
@@ -476,6 +485,7 @@
         }
 
         protected function commandInit(){
+            $this->clearCommandCache();
             $this->sendNewButton();
         }
 
@@ -547,7 +557,7 @@
             $chatId = $this->data->message->from->id;//Получаем chat_id
 
             foreach($files as $file){
-                $this->log(['$files' => UPLOAD_PATH.$file->path]);
+
                 if ($file->type_id == Files::TYPE_PHOTO)
                     Yii::$app->telegram->sendPhoto([
                         'chat_id' => $chatId,

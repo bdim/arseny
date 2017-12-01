@@ -32,6 +32,10 @@
 
         const CACHE_DEPENDENCY_KEY = 'Taxonomy';
 
+        public $_tag; // Это про ког пишем, есть еще keywords - они отдельно
+        public $_tagsIds = null;
+        public $_tagsNames = null;
+
         public static $tag_case = [
             Taxonomy::TAG_ARSENY => [
                 'и' => 'Арсений',
@@ -139,5 +143,33 @@
             } ,3600*24, static::getCacheDependency());
 
             return $result;
+        }
+
+        public static function getTagsIds($model){
+            /**
+             * @var $model ActiveRecord
+             */
+            if (is_null($model->_tagsIds[$model->className()])){
+                $model->_tagsIds = [];
+                foreach ($model->taxonomy as $tax){
+                    $model->_tagsIds[] =$tax->tid;
+                }
+            }
+
+            return $model->_tagsIds;
+        }
+
+        public static function getTagNames($model){
+            /**
+             * @var $model ActiveRecord
+             */
+            if (is_null($model->_tagsNames)){
+                $model->_tagsNames = [];
+                if (!empty($model->tagsIds))
+                    foreach ($model->tagsIds as $id)
+                        $model->_tagsNames[$id] = Taxonomy::getNameById($id);
+            }
+
+            return $model->_tagsNames;
         }
     }

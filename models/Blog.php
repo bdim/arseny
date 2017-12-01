@@ -10,6 +10,7 @@
     use yii\web\IdentityInterface;
     use yii\web\UrlManager;
     use \yii\caching\TagDependency;
+    use app\components\TaxonomyBehavior;
 
     /**
      * Blog model
@@ -28,9 +29,6 @@
 
         public $pub_date;
 
-        protected $_tag; // Это про ког пишем, есть еще keywords - они отдельно
-        protected $_tagsIds = null;
-        protected $_tagsNames = null;
 
         const CACHE_DEPENDENCY_KEY = 'blog';
 
@@ -45,12 +43,13 @@
         /**
          * @inheritdoc
          */
-        /*public function behaviors()
+        public function behaviors()
         {
             return [
-                TimestampBehavior::className(),
+                TaxonomyBehavior::className()
+                //TimestampBehavior::className(),
             ];
-        }*/
+        }
 
         /**
          * @inheritdoc
@@ -63,43 +62,6 @@
             ];
         }
 
-        /* relation Taxonomy-map */
-        public function getTaxonomy()
-        {
-            $q =  $this->hasMany(TaxonomyMap::className(), ['blog_id' => 'id']);
-
-            return $q;
-        }
-
-        /* id шники тегов*/
-        public function getTagsIds(){
-            if (is_null($this->_tagsIds)){
-                $this->_tagsIds = [];
-                foreach ($this->taxonomy as $tax){
-                    $this->_tagsIds[] =$tax->tid;
-                }
-            }
-
-            return $this->_tagsIds;
-        }
-
-        public function getTag(){
-            return $this->getTagsIds();
-        }
-        public function setTag($tag){
-            $this->tag = $tag;
-        }
-
-        public function getTagNames(){
-            if (is_null($this->_tagsNames)){
-                $this->_tagsNames = [];
-                if (!empty($this->tagsIds))
-                    foreach ($this->tagsIds as $id)
-                        $this->_tagsNames[$id] = Taxonomy::getNameById($id);
-            }
-
-            return $this->_tagsNames;
-        }
 
         public function beforeSave($insert){
 
@@ -118,36 +80,7 @@
         }
 
         public function afterSave($insert, $changedAttributes){
-            if (!empty($this->tag)){ // про кого пишем
-
-                // удаляем все теги словаря VID_BLOG_TAG
-                Yii::$app->db->createCommand('DELETE m.* FROM {{%taxonomy_map}} m LEFT JOIN {{%taxonomy_data}} t ON m.`tid` = t.`tid`
-                                                  WHERE m.`blog_id` = :blog_id AND t.`vid` = :vid;',
-                    [
-                        ':blog_id' => $this->id,
-                        ':vid'     => Taxonomy::VID_BLOG_TAG,
-                    ]
-                )->execute();
-
-                if (!is_array($this->tag))
-                    $this->tag = [$this->tag];
-
-                foreach ($this->tag as $tag){
-                    if (is_numeric($tag))
-                        $tagId = $tag;
-                    else
-                        $tagId = Taxonomy::getIdByName($tag, Taxonomy::VID_BLOG_TAG);
-
-                    Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`blog_id`,`tid` ) VALUES (:blog_id,:tid) ',
-                        [
-                            ':blog_id' => $this->id,
-                            ':tid'     => $tagId,
-                        ]
-                    )->execute();
-                }
-            }
             Blog::flushCache();
-
             return parent::afterSave($insert, $changedAttributes);
         }
 
@@ -191,20 +124,6 @@
             }
         }
 
-        public function addKeywords($keywords){
-            if (empty($keywords)) return;
-
-            if (!is_array($keywords))
-                $keywords = [$keywords];
-
-            foreach ($keywords as $name)
-                Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`blog_id`,`tid` ) VALUES (:blog_id,:tid) ',
-                    [
-                        ':blog_id' => $this->id,
-                        ':tid'     => is_numeric($name) ? $name : Taxonomy::getIdByName($name)
-                    ]
-                )->execute();
-        }
 
         public function getIsEmpty(){
             return (empty($this->title) && empty($this->body) && empty($this->photo));
@@ -234,13 +153,15 @@
             $dates = Yii::$app->cache->getOrSet('blog-dates'.json_encode($filter),function() use ($filter) {
                 $blogIds = [];
                 if (!empty($filter['tag'])){
-                    $nodes = TaxonomyMap::find()->select(['blog_id'])->where("`tid` = :tid", [':tid' => $filter['tag']])->asArray('blog_id')->all();
+                    $nodes = TaxonomyMap::find()->select(['model_id', 'model_name'])->where("`tid` = :tid ", [':tid' => $filter['tag']])->asArray('model_id')->all();
                     foreach ($nodes as $node)
-                        $blogIds[] = $node['blog_id'];
+                        $blogIds[$node->model_name][] = $node['model_id'];
                 }
+
+                /* Blog */
                 $query = Blog::find()->select('DATE(`publish_date`) as pub_date');
-                if (!empty($blogIds)){
-                    $query->where(" `id` in (".implode(',',$blogIds).")");
+                if (!empty($blogIds['Blog'])){
+                    $query->where(" `id` in (".implode(',',$blogIds['Blog']).")");
                 } else {
                     $query->where('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date');
                 }
@@ -253,8 +174,25 @@
                         $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
                 }
 
+                /* Events */
+                $query = Event::find()->select('DATE(`publish_date`) as pub_date');
+                if (!empty($blogIds['Event'])){
+                    $query->where(" `id` in (".implode(',',$blogIds['Event']).")");
+                } else {
+                    $query->where('(`title` <> "" OR `body` <> "")')->groupBy('pub_date');
+                }
+
+                $query = $query->all();
+
+                $dates = [];
+                foreach ($query as $q) {
+                    if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
+                        $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
+                }
+
                 /* теги прикреплены только к блогу */
                 if (empty($filter['tag'])) {
+                    /* Files */
                     $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
                     foreach ($query as $q) {
                         if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date, 0, 4) == $filter['year']))
