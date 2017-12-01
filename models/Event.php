@@ -62,14 +62,11 @@
 
         public static function postEvent(){
             $date = date('Y-m-d', time() - 24*3600);
-            return static::findOne(['event_date' => $date]);
+            return static::findOne(['date_end' => $date]);
         }
 
         public function getMessage(){
-            $message = 'Привет! ';
-            // $message .= $this->title ? 'Вчера у '.Taxonomy::$tag_case[$this->child_id]['р']. ' произошло событие: '.$this->title.'. ' . 'Есть что рассказать?'  : '';
-            $message .= $this->post_text ? $this->post_text.'. ' : '';
-
+            $message = $this->post_text ? 'Привет! '.$this->post_text.'. ' : '';
             return $message;
         }
 

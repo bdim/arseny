@@ -455,7 +455,7 @@
             /** @var Event $event */
             $event = Event::postEvent();
 
-            if (!empty($event)){
+            if (!empty($event) && !empty($event->message)){
                 $response['text'] = $event->message;
                 $response['chat_id'] = $event->user->telegram_id;
                 $response['reply_markup'] = json_encode([

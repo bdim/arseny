@@ -19,7 +19,10 @@ $form = ActiveForm::begin(['id' => 'form-body-'.$data->id, 'fieldConfig' => ['te
                 'value' => $tag->tid,
                 'text'  => StringUtils::mb_ucfirst($tag->name)
             ];
-
+        $source[] = [
+            'value' => 0,
+            'text'  => '-пусто-'
+        ];
 
         echo $form->field($data, 'tag')->widget(Editable::className(), [
             'url' => $controller.'/update',

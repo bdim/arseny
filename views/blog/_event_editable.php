@@ -19,7 +19,10 @@ $form = ActiveForm::begin(['id' => 'form-body-'.$data->id, 'fieldConfig' => ['te
                 'value' => $tag->tid,
                 'text'  => StringUtils::mb_ucfirst($tag->name)
             ];
-
+        $source[] = [
+            'value' => 0,
+            'text'  => '-пусто-'
+        ];
 
         echo $form->field($data, 'tag')->widget(Editable::className(), [
             'url' => $controller.'/update',
@@ -30,10 +33,7 @@ $form = ActiveForm::begin(['id' => 'form-body-'.$data->id, 'fieldConfig' => ['te
                 'label' => 'Теги',
                 'emptytext' => 'Про кого?',
                 'value' =>  \yii\helpers\Json::encode($data->tag),
-                'source' =>  $source
-                    /*['value' => Taxonomy::TAG_ARSENY, 'text' => Taxonomy::$tag_case[Taxonomy::TAG_ARSENY]['и']],
-                    ['value' => Taxonomy::TAG_YAROSLAV, 'text' => Taxonomy::$tag_case[Taxonomy::TAG_YAROSLAV]['и']],*/
-                ,
+                'source' =>  $source,
             ]
         ]);
 

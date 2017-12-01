@@ -9,11 +9,11 @@ use app\models\Files;
             /*$photos[] = [
                 'thumb' => Files::thumb(UPLOAD_PATH.'/'.$file->path, 150),
                 'src'   => UPLOAD_WWW.'/'.$file->path,
-                'description' => $file->caption ? $file->caption : null
+                'description' => ($show_date ? Yii::$app->formatter->asDate($file->date_id)." " : '').($file->caption ? $file->caption : ''),
             ];*/
             $photos[] =
                 [
-                    'title' => ($show_date ? Yii::$app->formatter->asDate($file->date_id) : '').($file->caption ? $file->caption : ''),
+                    'title' => ($show_date ? Yii::$app->formatter->asDate($file->date_id)." " : '').($file->caption ? $file->caption : ''),
                     'href' => UPLOAD_WWW.'/'.$file->path,
                     'type' => 'text/html',
                     /*'poster' => 'http://media.w3.org/2010/05/sintel/poster.png'*/

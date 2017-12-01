@@ -54,13 +54,14 @@ class TaxonomyBehavior extends Behavior
                 else
                     $tagId = Taxonomy::getIdByName($tag, Taxonomy::VID_BLOG_TAG);
 
-                Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`model_id`, `model_name`, `tid` ) VALUES (:model_id, :model_name, :tid) ',
-                    [
-                        ':model_id' => $this->owner->id,
-                        ':model_name' => $className,
-                        ':tid'     => $tagId,
-                    ]
-                )->execute();
+                if (!empty($tagId))
+                    Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`model_id`, `model_name`, `tid` ) VALUES (:model_id, :model_name, :tid) ',
+                        [
+                            ':model_id' => $this->owner->id,
+                            ':model_name' => $className,
+                            ':tid'     => $tagId,
+                        ]
+                    )->execute();
             }
         }
     }

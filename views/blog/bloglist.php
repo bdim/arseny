@@ -51,30 +51,41 @@ echo ListView::widget([
 ?>
 
 <style>
+    .m20{
+        margin: 20px;
+    }
+    .pt20 {
+        padding-top: 20px;
+    }
+    .blog_item_media {
+        min-height: 20px;
+    }
     .filter-form{
         margin-bottom: 20px;
         padding-bottom: 20px;
         border-bottom: 1px solid #eee;
-    }
-    .blog_item div{
-        margin-bottom: 15px;
     }
     .ug-textpanel-bg {
         opacity: 0 !important;
     }
     .blog_item {
         margin-top: 20px;
+        background-color: #daecf5;
+        box-shadow: 0 0 10px #666;
     }
     .event_body_item{
-        background-color: seashell;
+        background-color: #fdf4f7;
     }
     .blog_item_title {
         font-weight: bold;
     }
+    .blog_item_one_title{
+        color: #DD1144;
+        display: block;
+    }
     .blog_item_one_taxonomy {
         color: #006DA9;
     }
-
     .editable-input textarea{
         min-width: 500px;
     }

@@ -258,6 +258,7 @@ class SiteController extends Controller
 
     public function actionFlushblog(){
         if (!Yii::$app->user->isGuest) {
+            Blog::clear();
             Blog::flushCache();
             echo 'Flushblog';
         }

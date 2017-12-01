@@ -41,8 +41,8 @@ use app\models\Event;
     if (!empty($event))
         foreach ($event as $item) {
 
-            $out['event'][$item->id]['title'] = Yii::$app->formatter->asDate($item['date_start'],'php:d.m.Y l') ." - "
-                . Yii::$app->formatter->asDate($item['date_end'],'php:d.m.Y l');
+            $out['event'][$item->id]['title'] = Yii::$app->formatter->asDate($item['date_start'],'php:d.m.Y l') .
+                ( $item['date_start'] != $item['date_end'] ? " - ". Yii::$app->formatter->asDate($item['date_end'],'php:d.m.Y l') : '');
 
             if (User::isUserAdmin())
                 $out['event'][$item->id]['body'] .= $this->context->renderPartial('_event_editable',['data' => $item, 'controller' => 'event']);
@@ -54,14 +54,12 @@ use app\models\Event;
                 $out['event'][$item->id]['media'] = $this->context->renderPartial('_media',['data' => $files, 'show_date' => true]);
             }
         }
-
-
 ?>
 
 <? if (!empty($out['body']) || !empty($out['media'])){ ?>
 <div class="blog_item">
-    <div class="blog_item_title"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?></div>
-    <div class="blog_item_body"><?= $out['body'];?></div>
+    <div class="blog_item_title m20 pt20"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?></div>
+    <div class="blog_item_body m20 "><?= $out['body'];?></div>
     <div class="blog_item_media"><?= $out['media'] ?></div>
 </div>
 <hr>
@@ -70,8 +68,8 @@ use app\models\Event;
 <? if (!empty($out['event']))
     foreach ($out['event'] as $eventOut){?>
 <div class="blog_item event_body_item">
-    <div class="blog_item_title"><?= $eventOut['title'];?></div>
-    <div class="blog_item_body"><?= $eventOut['body'];?></div>
+    <div class="blog_item_title m20 pt20"><?= $eventOut['title'];?></div>
+    <div class="blog_item_body m20 "><?= $eventOut['body'];?></div>
     <div class="blog_item_media"><?= $eventOut['media'] ?></div>
 </div>
     <hr>

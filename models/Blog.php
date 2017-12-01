@@ -210,7 +210,7 @@
         /* очистка от ненужных записей */
         public static function clear(){
             Yii::$app->db->createCommand('DELETE b.* FROM {{%blog}} b
-                                            LEFT JOIN {{%files}} f ON DATE(b.`publish_date`) = DATE(f.`date_id`)
+                                            LEFT JOIN {{%files}} f ON DATE(b.`publish_date`) = DATE(f.`date_id`) AND f.`event_id` = 0
                                             WHERE b.`title` = "" AND b.`body` = "" AND b.`photo` = "" AND f.id IS NULL '
             )->execute();
         }
