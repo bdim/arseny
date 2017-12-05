@@ -11,6 +11,9 @@ echo Html::a('Добавить',Url::to(['event/add']));
 echo '<br><br>';
 echo GridView::widget([
     'dataProvider' => $dataProvider,
+    'options' => [
+        'class' => 'event-list',
+    ],
     'columns' => [
         //['class' => 'yii\grid\SerialColumn'],
         'id',
@@ -22,14 +25,14 @@ echo GridView::widget([
                     'model' => $data,
                     'attribute' => 'date_start',
                     'url' => 'event/update',
-                    'type' => 'datetime',
-                    'mode' => 'pop',
+                    'type' => 'date',
+                    /*'mode' => 'pop',*/
                     'clientOptions' => [
-                        'placement' => 'right',
+                        'showbuttons' => 'bottom',
                         'format' => 'yyyy-mm-dd',
-                        'viewformat' => 'dd/mm/yyyy hh:ii',
-                        'datetimepicker' => [
-                            'orientation' => 'top auto'
+                        'viewformat' => 'yyyy-mm-dd',
+                        'datepicker' => [
+                            'weekStart'=> 1
                         ]
                     ]
                 ]);
@@ -42,14 +45,14 @@ echo GridView::widget([
                     'model' => $data,
                     'attribute' => 'date_end',
                     'url' => 'event/update',
-                    'type' => 'datetime',
-                    'mode' => 'pop',
+                    'type' => 'date',
+                    /*'mode' => 'pop',*/
                     'clientOptions' => [
-                        'placement' => 'right',
+                        'showbuttons' => 'bottom',
                         'format' => 'yyyy-mm-dd',
-                        'viewformat' => 'dd/mm/yyyy hh:ii',
-                        'datetimepicker' => [
-                            'orientation' => 'top auto'
+                        'viewformat' => 'yyyy-mm-dd',
+                        'datepicker' => [
+                            'weekStart'=> 1
                         ]
                     ]
                 ]);
@@ -65,11 +68,11 @@ echo GridView::widget([
                     'type' => 'datetime',
 
                     'clientOptions' => [
-                        'placement' => 'right',
+                        'showbuttons' => 'bottom',
                         'format' => 'yyyy-mm-dd hh:ii:ss',
-                        'viewformat' => 'dd/mm/yyyy hh:ii',
+                        'viewformat' => 'yyyy-mm-dd hh:ii',
                         'datetimepicker' => [
-                            'orientation' => 'top auto'
+                            'weekStart'=> 1,
                         ]
                     ]
                 ]);
@@ -85,6 +88,7 @@ echo GridView::widget([
                     'type' => 'text',
 
                     'clientOptions' => [
+                        'showbuttons' => 'bottom',
                         'emptytext' => 'Заголовок',
                         'placeholder' => 'Заголовок ...'
                     ]
@@ -98,9 +102,9 @@ echo GridView::widget([
                     'model' => $data,
                     'attribute' => 'body',
                     'url' => 'event/update',
-
                     'type' => 'wysihtml5',
                     'clientOptions' => [
+                        'showbuttons' => 'bottom',
                         'emptytext' => 'Текст',
                     ]
                 ]);
@@ -111,3 +115,8 @@ echo GridView::widget([
     ],
 ]);
 ?>
+<style>
+    .event-list {
+        position: relative;
+    }
+</style>
