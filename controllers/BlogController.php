@@ -48,8 +48,11 @@ class BlogController extends Controller
 
     public function actionIndex(){
 
-        $filter['year'] = Yii::$app->request->get('year');
-        $filter['tag'] = Yii::$app->request->get('tag');
+        $filter['year']   = Yii::$app->request->get('year');
+        $filter['tag']    = Yii::$app->request->get('tag');
+        $filter['notags'] = Yii::$app->request->get('notags');
+
+        $sort =  "SORT_". (Yii::$app->request->get('sort') ? Yii::$app->request->get('sort') : 'DESC');
 
         $dates = Blog::getDates($filter);
 
@@ -63,7 +66,7 @@ class BlogController extends Controller
                     'pub_date',
                 ],
                 'defaultOrder' => [
-                    'pub_date' => SORT_DESC,
+                    'pub_date' => constant($sort),
                 ]
             ],
         ]);

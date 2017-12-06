@@ -152,23 +152,33 @@
 
             $dates = Yii::$app->cache->getOrSet('blog-dates'.json_encode($filter),function() use ($filter) {
                 $blogIds = [];
+                $dates = [];
+                $in = 'IN';
                 if (!empty($filter['tag'])){
-                    $nodes = TaxonomyMap::find()->select(['model_id', 'model_name'])->where("`tid` = :tid ", [':tid' => $filter['tag']])->asArray('model_id')->all();
+                    $nodes = TaxonomyMap::find()->select(['model_id', 'model_name'])->where("`tid` = :tid ", [':tid' => $filter['tag']])->all();
                     foreach ($nodes as $node)
-                        $blogIds[$node->model_name][] = $node['model_id'];
+                        $blogIds[$node->model_name][] = $node->model_id;
+                } elseif (!empty($filter['notags'])){
+                    $nodes = TaxonomyMap::find()->select(['model_id', 'model_name'])->all();
+                    foreach ($nodes as $node)
+                        $blogIds[$node->model_name][] = $node->model_id;
+
                 }
 
                 /* Blog */
                 $query = Blog::find()->select('DATE(`publish_date`) as pub_date');
-                if (!empty($blogIds['Blog'])){
-                    $query->where(" `id` in (".implode(',',$blogIds['Blog']).")");
+                if (!empty($filter['notags'])){
+                    $query->where(" `id` ".$in." (".implode(',',$blogIds['Blog']).")");
+                    //$query->orWhere('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date');
+                }
+                elseif (!empty($blogIds['Blog'])){
+                    $query->where(" `id` ".$in." (".implode(',',$blogIds['Blog']).")");
                 } else {
                     $query->where('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date');
                 }
 
                 $query = $query->all();
 
-                $dates = [];
                 foreach ($query as $q) {
                     if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
                         $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
@@ -177,27 +187,38 @@
                 /* Events */
                 $query = Event::find()->select('DATE(`publish_date`) as pub_date');
                 if (!empty($blogIds['Event'])){
-                    $query->where(" `id` in (".implode(',',$blogIds['Event']).")");
+                    $query->where(" `id` ".$in." (".implode(',',$blogIds['Event']).")");
                 } else {
                     $query->where('(`title` <> "" OR `body` <> "")')->groupBy('pub_date');
                 }
 
                 $query = $query->all();
 
-                $dates = [];
                 foreach ($query as $q) {
                     if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
                         $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
                 }
 
                 /* теги прикреплены только к блогу */
-                if (empty($filter['tag'])) {
+                $textDates = $dates;
+                $notagsDates = [];
+                if (empty($filter['tag'])){
                     /* Files */
-                    $query = Files::find()->select('DATE(`date_id`) as pub_date')->groupBy('pub_date')->all();
+                    $query = Files::find()->select('DATE(`date_id`) as pub_date, event_id')->groupBy('pub_date')->all();
                     foreach ($query as $q) {
-                        if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date, 0, 4) == $filter['year']))
-                            $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+                        if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date, 0, 4) == $filter['year'])){
+
+                            if (!empty($filter['notags'])){
+                                if ($q->event_id == 0 && empty($textDates[$q->pub_date]))
+                                    $notagsDates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+
+                            } else
+                                $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'files' => true];
+                        }
                     }
+                }
+                if (!empty($filter['notags'])){
+                    $dates = $notagsDates;
                 }
                 ksort($dates);
 

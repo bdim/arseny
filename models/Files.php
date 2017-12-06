@@ -120,6 +120,25 @@
             $type = $params['type_id'];
             $path = $params['path'];
 
+            try {
+                if (!$info = getimagesize(UPLOAD_PATH . '/' . $path))
+                    return false;
+
+                // превьюхи отсекаем
+                if ($info[0] < 350 && $info[1] < 350)
+                    return false;
+
+            } catch (\Exception $e) {
+                Log::add([
+                    'message' => 'Size error: '.$path.'; '.$e->getMessage(),
+                    'context' => 'Files::add'
+                ]);
+                static::renameFile(UPLOAD_PATH . '/' . $path, UPLOAD_PATH . '/errorFiles/' . $path);
+
+                return false;
+            }
+
+
             // ищем дубли
             $f0 = Files::findbyPath($path);
             if (!empty ($f0)) return false;
@@ -141,7 +160,6 @@
                     return false;
                 }
 
-                // проверка даты из exif. Для импорта важно не нацеплять превьюхи - у них нет exif даты
                 if (empty($exif['DateTimeOriginal']))
                     return false;
             }
@@ -157,19 +175,32 @@
         }
 
         /* импорт файлов */
-        public static function importFilesFromFolder($path, $type_id = Files::TYPE_PHOTO){
+        public static function importFilesFromFolder($path, $type_id = Files::TYPE_PHOTO, $checkExifData = true, $dateInFilenameFormat ='', $fileParams = []){
 
             if ($handle = opendir(UPLOAD_PATH.'/'.$path)) {
                 while ($entry = readdir($handle)) {
 
                     if (is_dir(UPLOAD_PATH.'/'.$path.'/'.$entry)){
                         if (!in_array($entry, ['.','..'])){
-                            static::importFilesFromFolder($path.'/'.$entry, $type_id);
+                            if (file_exists(UPLOAD_PATH.'/'.$path.'/'.$entry.'/params.txt')){
+                                $fileParams = Json::decode(file_get_contents(UPLOAD_PATH.'/'.$path.'/'.$entry.'/params.txt'));
+                            }
+                            static::importFilesFromFolder($path.'/'.$entry, $type_id, $checkExifData, $dateInFilenameFormat, $fileParams);
                         }
-                    } else Files::add([
-                        'path' => $path.'/'.$entry,
-                        'type_id' => $type_id
-                    ], true);
+                    } elseif ($entry != 'params.txt') {
+                        $date = null;
+                        if (!$checkExifData && !empty($dateInFilenameFormat)){
+                            preg_match_all($dateInFilenameFormat['pattern'],$entry, $matches);
+                            $d = $dateInFilenameFormat['date'];
+                            $date = $matches[$d['y']][0].'-'.$matches[$d['m']][0].'-'.$matches[$d['d']][0].' '
+                                .$matches[$d['h']][0].':'.$matches[$d['i']][0].':'.$matches[$d['s']][0];
+                        }
+
+                        Files::add($fileParams + [
+                            'path' => $path.'/'.$entry,
+                            'type_id' => $type_id
+                        ], $checkExifData, $date);
+                    }
                 }
                 closedir($handle);
             }

@@ -217,7 +217,20 @@ class SiteController extends Controller
 
     public function actionImportfoto(){
         if (!Yii::$app->user->isGuest) {
-            Files::importFilesFromFolder('photo_jpg',Files::TYPE_PHOTO);
+            $format = null;
+            /*$format = [
+                'pattern' => "/([0-9]{4})-([0-9]{2})-([0-9]{2})_([0-9]{2})-([0-9]{2})-([0-9]{2})/",
+                'date' => [
+                    'y' =>1,
+                    'm' =>2,
+                    'd' =>3,
+                    'h' =>4,
+                    'i' =>5,
+                    's' =>6
+                ]
+
+            ];*/
+            Files::importFilesFromFolder('photo_jpg',Files::TYPE_PHOTO, true, $format);
             Blog::flushCache();
             echo 'ok';
         }
@@ -254,6 +267,7 @@ class SiteController extends Controller
         $mimeType = $data->message->voice->mime_type;
         Files::add(['path' => 'photo/test.ogg', 'type_id' => Files::TYPE_AUDIO, 'params' => Json::encode(['mime-type' => $mimeType])]);*/
 
+        echo Json::encode(['event_id'=>'6']);
     }
 
     public function actionFlushblog(){

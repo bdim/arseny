@@ -7,7 +7,7 @@ use yii\widgets\ListView;
 use yii\bootstrap\ActiveForm;
 use app\models\Taxonomy;
 use app\components\StringUtils;
-
+use app\models\User;
 
 $this->title = 'Блог';
 $this->params['breadcrumbs'][] = $this->title;
@@ -39,6 +39,23 @@ $tags = Taxonomy::getVocabularyTags(Taxonomy::VID_BLOG_TAG);
             <?}?>
         </select>
 
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+        <label for="tag">Сортировать: </label>
+        <select name="sort">
+            <? $selected = Yii::$app->request->get('sort'); ?>
+            <option value="DESC" <?= ($selected != "ASC") ? 'selected' : ''?>>по убыванию</option>
+            <option value="ASC"  <?= ($selected == "ASC") ? 'selected' : ''?>>по возрастанию</option>
+        </select>
+
+        <? if (User::isUserAdmin()){
+            $selected = intval(Yii::$app->request->get('notags'));
+            ?>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <label for="notags">без тегов: </label>
+            <input name="notags" type="checkbox" value="1" <?= $selected ? 'checked' : ''?>>
+        <?}?>
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <input type="submit" value="фильтровать">
     </form>
 </div>
