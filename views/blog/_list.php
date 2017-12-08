@@ -22,12 +22,12 @@ use app\components\DateUtils;
 
             $tags = $tags + $item->tagsIds;
 
-            if (User::isUserAdmin())
+            if (User::isUserEditor())
                 $out['body'] .= $this->context->renderPartial('_body_editable',['data' => $item, 'controller' => 'blog']);
             else
                 $out['body'] .= $this->context->renderPartial('_body',['data' => $item]);
         }
-    } elseif (!empty($files) && User::isUserAdmin()){
+    } elseif (!empty($files) && User::isUserEditor()){
         $item = new Blog();
         $item->publish_date = $model['pub_date'];
         $item->save();
@@ -37,7 +37,7 @@ use app\components\DateUtils;
 
     /* медиа */
     if (!empty($files)){
-        $out['media'] = $this->context->renderPartial('_media',['data' => $files, 'show_date' => false]);
+        $out['media'] = $this->context->renderPartial('_media',['data' => $files, 'show_date' => false, 'pub_date' => $model['pub_date']]);
     }
 
 
@@ -50,14 +50,14 @@ use app\components\DateUtils;
             $out['event'][$item->id]['title'] = Yii::$app->formatter->asDate($item['date_start'],'php:d.m.Y l') .
                 ( $item['date_start'] != $item['date_end'] ? " - ". Yii::$app->formatter->asDate($item['date_end'],'php:d.m.Y l') : '');
 
-            if (User::isUserAdmin())
+            if (User::isUserEditor())
                 $out['event'][$item->id]['body'] .= $this->context->renderPartial('_event_editable',['data' => $item, 'controller' => 'event']);
             else
                 $out['event'][$item->id]['body'] .= $this->context->renderPartial('_event',['data' => $item]);
 
             $files = Files::getItemsForEvent($item->id);
             if (!empty($files)){
-                $out['event'][$item->id]['media'] = $this->context->renderPartial('_media',['data' => $files, 'show_date' => true]);
+                $out['event'][$item->id]['media'] = $this->context->renderPartial('_media',['data' => $files, 'show_date' => true, 'event_id' => $item->id]);
             }
         }
 

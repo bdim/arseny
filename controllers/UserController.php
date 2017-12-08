@@ -39,7 +39,7 @@ class UserController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
-                            return User::isUserAdmin(Yii::$app->user->identity);
+                            return User::isUserAdmin();
                         }
                     ],
                     [
@@ -47,7 +47,7 @@ class UserController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
-                            return Yii::$app->user->identity->role == User::ROLE_USER;
+                            return !Yii::$app->user->isGuest;
                         }
                     ],
                 ],

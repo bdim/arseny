@@ -32,8 +32,9 @@
         const STATUS_DELETED = 0;
         const STATUS_ACTIVE = 10;
 
-        const ROLE_ADMIN = 'admin';
-        const ROLE_USER = 'user';
+        const ROLE_ADMIN  = 'admin';
+        const ROLE_EDITOR = 'editor';
+        const ROLE_USER   = 'user';
 
         /**
          * @inheritdoc
@@ -72,6 +73,19 @@
                 $user = Yii::$app->user->identity;
 
             if ($user->role == User::ROLE_ADMIN)
+            {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public static function isUserEditor($user = null)
+        {
+            if (is_null($user))
+                $user = Yii::$app->user->identity;
+
+            if ($user->role == User::ROLE_EDITOR || $user->role == User::ROLE_ADMIN)
             {
                 return true;
             } else {

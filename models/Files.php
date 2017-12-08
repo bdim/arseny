@@ -2,6 +2,7 @@
     namespace app\models;
      
     use app\components\StringUtils;
+    use app\components\TaxonomyBehavior;
     use Yii;
     use yii\base\NotSupportedException;
     use yii\behaviors\TimestampBehavior;
@@ -59,11 +60,26 @@
             ];
         }
 
+        /**
+         * @inheritdoc
+         */
+        public function behaviors()
+        {
+            return [
+                TaxonomyBehavior::className()
+            ];
+        }
+
         public function beforeSave($insert){
             if (!empty($this->_params))
                 $this->params = Json::encode($this->_params);
 
             return parent::beforeSave($insert);
+        }
+
+        public function afterSave($insert, $changedAttributes){
+            Blog::flushCache();
+            return parent::afterSave($insert, $changedAttributes);
         }
 
         public function afterFind(){

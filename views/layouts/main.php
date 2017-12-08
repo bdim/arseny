@@ -46,10 +46,10 @@ if (Yii::$app->user->isGuest) {
     //$menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
     $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
 } else {
-    $isAdmin = User::isUserAdmin(Yii::$app->user->identity);
+
     $menuItems[] = ['label' => 'Блог', 'url' => ['/blog']];
     $menuItems[] = ['label' => 'Статьи', 'url' => ['/article']];
-    if ($isAdmin){
+    if (User::isUserAdmin()){
         $menuItems[] = ['label' => 'Пользователи', 'url' => ['/user/list']];
         $menuItems[] = ['label' => 'События', 'url' => ['/event/list']];
     }

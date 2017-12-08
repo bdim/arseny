@@ -134,6 +134,21 @@ a.desc:after {
 
 .blog_item_media {
     min-height: 20px;
+    position: relative;
+}
+.blog_media_edit {
+    position: absolute;
+    top: -38px;
+    right: 3px;
+    background-image: url(/icon/pen.png);
+    width: 32px;
+    height: 32px;
+    z-index: 1;
+    opacity: 0.3;
+    cursor: pointer;
+}
+.blog_media_edit:hover{
+    opacity: 1;
 }
 .filter-form{
     margin-bottom: 20px;
