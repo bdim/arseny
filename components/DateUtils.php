@@ -587,4 +587,47 @@ class DateUtils
         return true;
     }
 
+	public static function age($birthday, $date = null, $asString = false){
+		if (empty($date)){
+			$date = time();
+		} else {
+			$date = strtotime($date);
+		}
+
+		$bDate = strtotime($birthday);
+
+		$y = intval(date("Y", $date)) - intval(date("Y", $bDate));
+		$m = intval(date("m", $date)) - intval(date("m", $bDate));
+		$d = intval(date("d", $date)) - intval(date("d", $bDate));
+
+		if ($d < 0){
+			$m--;
+			$d = date("t") + $m;
+		}
+
+		if ($m < 0){
+			$y--;
+			$m = 12 + $m;
+		}
+
+
+		if ($asString){
+			$out = [];
+			if ($y > 0)
+				$out[] = $y." ".\app\components\StringUtils::pluralEnd($y, ['год','года','лет']);
+
+			if ($m > 0)
+				$out[] = $m.' мес';
+
+			if ($y == 0 && $m ==0)
+				$out[] = $d." ".\app\components\StringUtils::pluralEnd($d, ['день','дня','дней']);
+
+			return implode(' ', $out);
+
+		} else return [
+				'y' => $y,
+				'm' => $m,
+				'd' => $d
+			];
+	}
 }

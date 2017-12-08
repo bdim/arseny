@@ -5,6 +5,7 @@ use app\models\User;
 use app\models\Blog;
 use app\models\Files;
 use app\models\Event;
+use app\components\DateUtils;
 
     // записи из блога - только своим
     if (!Yii::$app->user->isGuest) {
@@ -13,10 +14,13 @@ use app\models\Event;
     }
 
     $files = Files::getItemsForDay($model['pub_date'], true);
+    $tags = [];
 
     $out = [];
     if (!empty($blog)){
         foreach ($blog as $item) {
+
+            $tags = $tags + $item->tagsIds;
 
             if (User::isUserAdmin())
                 $out['body'] .= $this->context->renderPartial('_body_editable',['data' => $item, 'controller' => 'blog']);
@@ -41,6 +45,8 @@ use app\models\Event;
     if (!empty($event))
         foreach ($event as $item) {
 
+            $tags = $tags + $item->tagsIds;
+
             $out['event'][$item->id]['title'] = Yii::$app->formatter->asDate($item['date_start'],'php:d.m.Y l') .
                 ( $item['date_start'] != $item['date_end'] ? " - ". Yii::$app->formatter->asDate($item['date_end'],'php:d.m.Y l') : '');
 
@@ -54,11 +60,21 @@ use app\models\Event;
                 $out['event'][$item->id]['media'] = $this->context->renderPartial('_media',['data' => $files, 'show_date' => true]);
             }
         }
+
+    // возраст
+    $age = [];
+    if (in_array(\app\models\Taxonomy::TAG_ARSENY, $tags)){
+        $age[] = "Арсений - ".DateUtils::age("2012-05-12", $model['pub_date'], true);
+    }
+    if (in_array(\app\models\Taxonomy::TAG_YAROSLAV, $tags)){
+        $age[] = "Ярослав - ".DateUtils::age("2016-08-18", $model['pub_date'], true);
+    }
 ?>
 
 <? if (!empty($out['body']) || !empty($out['media'])){ ?>
 <div class="blog_item">
-    <div class="blog_item_title m20 pt20"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?></div>
+    <div class="blog_item_title m20 pt20"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?>
+        <?= !empty($age) ? '<span class="blog_item_age">('.implode(", ", $age).')</span>' : '';?></div>
     <div class="blog_item_body m20 "><?= $out['body'];?></div>
     <div class="blog_item_media"><?= $out['media'] ?></div>
 </div>

@@ -102,7 +102,6 @@ class StringUtils
     }
 
     /**
-     * Возвращает правильно отформатированное слово "столько-то вакансий"
      *
      * @param $amount int числовое значение
      * @param $ends   array массив окончаний Array("1 значение","2 значения","5 значений"[, "нет значений"]);
@@ -110,23 +109,12 @@ class StringUtils
      * @return sprintf($endString, $amount);
      * Формат фраз окончаний sprintf(String, $amount)
      */
-    public static function printEnd($amount, $ends = array("%d",
-        "%d",
-        "%d"))
-    {
-        return self::pluralEnd($amount, $ends);
-    }
-
     public static function pluralEnd($number, $words = array("",
         "",
         ""))
     {
-        if (!$number && isset($words[3])) return lng::t($words[3]);
 
-        unset($words[3]);
-
-        $pluralStr = str_replace('%d', '{n}', implode('|', $words));
-        return lng::t($pluralStr, $number);
+        return \Yii::$app->i18n->format('{n, plural, =1{'.$words[0].'} =2{'.$words[1].'} =3{'.$words[1].'} =4{'.$words[1].'} one{'.$words[2].'} few{'.$words[2].'} many{'.$words[2].'} other{'.$words[2].'}}', ['n' => $number % 10], 'ru_RU');
     }
 
     public static function normalize($str)
