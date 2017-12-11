@@ -200,7 +200,8 @@
                         if (!in_array($entry, ['.','..'])){
                             if (file_exists(UPLOAD_PATH.'/'.$path.'/'.$entry.'/params.txt')){
                                 $fileParams = Json::decode(file_get_contents(UPLOAD_PATH.'/'.$path.'/'.$entry.'/params.txt'));
-                            }
+                            } else
+                                $fileParams = [];
                             static::importFilesFromFolder($path.'/'.$entry, $type_id, $checkExifData, $dateInFilenameFormat, $fileParams);
                         }
                     } elseif ($entry != 'params.txt') {

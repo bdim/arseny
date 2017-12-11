@@ -7,13 +7,24 @@ use app\models\Files;
 use app\models\Event;
 use app\components\DateUtils;
 
+
+    $files = Files::getItemsForDay($model['pub_date'], true);
+
     // записи из блога - только своим
     if (!Yii::$app->user->isGuest) {
         $blog  = Blog::getItemsForDay($model['pub_date']);
         $event = Event::getItemsForDay($model['pub_date']);
+
+        /* если все пусто, то создаем блог */
+        if (empty($blog) && empty($event) && !empty($files)) {
+            $item = new Blog();
+            $item->publish_date = $model['pub_date'];
+            $item->save();
+
+            $blog[] = $item;
+        }
     }
 
-    $files = Files::getItemsForDay($model['pub_date'], true);
     $tags = [];
 
     $out = [];
@@ -27,12 +38,6 @@ use app\components\DateUtils;
             else
                 $out['body'] .= $this->context->renderPartial('_body',['data' => $item]);
         }
-    } elseif (!empty($files) && User::isUserEditor()){
-        $item = new Blog();
-        $item->publish_date = $model['pub_date'];
-        $item->save();
-
-        $out['body'] .= $this->context->renderPartial('_body_editable',['data' => $item]);
     }
 
     /* медиа */

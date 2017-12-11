@@ -4,8 +4,8 @@ use app\models\Files;
     $photos = [];
     $audios = [];
     $items = [];
-if (!empty($data)){?>
-  <a class="blog_media_edit" title="подписать медиа-файлы" href="/files?<?= $event_id ? "event_id=".$event_id : "date_id=".$pub_date; ?>" target="_blank"></a>
+if (!empty($data) && \app\models\User::isUserEditor()){?>
+  <a class="blog_media_edit" title="подписать эти фото" href="/files?<?= $event_id ? "event_id=".$event_id : "date_id=".$pub_date; ?>" target="_blank"></a>
 <?}
     foreach($data as $file){
         if ($file->type_id == Files::TYPE_PHOTO){

@@ -4,6 +4,7 @@
     use yii\bootstrap\ActiveForm;
     use app\components\InitController;
     use kartik\date\DatePicker;
+use app\models\User;
 
     $this->title = $title;
 
@@ -18,6 +19,11 @@
                 <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
                     <?= $form->field($model, 'fio') ?>
                     <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+                    <?= $form->field($model, 'role')->dropDownList([
+                            User::ROLE_ADMIN => User::ROLE_ADMIN,
+                            User::ROLE_EDITOR => User::ROLE_EDITOR,
+                            User::ROLE_USER => User::ROLE_USER
+                    ]); ?>
                     <?= $form->field($model, 'password')->passwordInput() ?>
                     <?= $form->field($model, 'info') ?>
 

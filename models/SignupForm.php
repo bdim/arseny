@@ -18,6 +18,7 @@
         public $username;
         public $fio;
         public $info;
+        public $role;
         public $password;
 
 
@@ -30,6 +31,8 @@
                 ['fio', 'trim'],
                 ['fio', 'required'],
                 ['fio', 'string', 'min' => 2, 'max' => 255],
+                ['role', 'string'],
+                ['role', 'required'],
                 ['info', 'string'],
                 ['username', 'trim'],
                 ['username', 'required'],
@@ -43,8 +46,8 @@
         public function scenarios()
         {
             $scenarios = parent::scenarios();
-            $scenarios['add'] = ['username', 'fio','info','password'];
-            $scenarios['update'] = ['username', 'fio','info','password'];
+            $scenarios['add'] = ['username', 'fio','info','role','password'];
+            $scenarios['update'] = ['username', 'fio','info','role','password'];
 
             return $scenarios;
         }
@@ -73,7 +76,7 @@
                 $user = new User();
 
             $user->username     = $this->username;
-            $user->role         = $user->role ? $user->role :User::ROLE_USER;
+            $user->role         = $this->role ? $this->role :User::ROLE_USER;
             $user->fio          = $this->fio;
             $user->info         = $this->info;
 

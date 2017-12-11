@@ -14,6 +14,7 @@ use app\models\User;
 use app\models\SignupForm;
 use yii\helpers\Url;
 use app\components\VarDump;
+use dosamigos\editable\EditableAction;
 
 class UserController extends Controller
 {
@@ -35,7 +36,7 @@ class UserController extends Controller
                         'roles' => ['@'],
                     ],
                     [
-                        'actions' => ['list','add','update','delete'],
+                        'actions' => ['list','add','update','delete','updateone'],
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {
@@ -73,6 +74,10 @@ class UserController extends Controller
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+            'updateone' => [
+                'class' => EditableAction::className(),
+                'modelClass' => User::className(),
             ],
         ];
     }

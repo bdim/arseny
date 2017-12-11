@@ -230,7 +230,7 @@ class SiteController extends Controller
                 ]
 
             ];*/
-            Files::importFilesFromFolder('photo_jpg',Files::TYPE_PHOTO, true, $format);
+            Files::importFilesFromFolder('photo_jpg/2014-07-Азовское_море',Files::TYPE_PHOTO, true, $format);
             Blog::flushCache();
             echo 'ok';
         }
