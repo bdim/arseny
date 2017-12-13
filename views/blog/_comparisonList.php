@@ -65,8 +65,8 @@ use app\components\DateUtils;
     <div class="comp_col comp_left">
         <div class="blog_item_media"><?= $out['media'][2] ?></div>
         <div class="blog_item_body m20 "><?= $out['body'][2];?></div>
-    </div>
-    <div class="comp_col comp_right">
+    </div><div
+        class="comp_col comp_right">
         <div class="blog_item_media"><?= $out['media'][8] ?></div>
         <div class="blog_item_body m20 "><?= $out['body'][8];?></div>
     </div>

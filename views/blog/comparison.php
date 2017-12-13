@@ -40,7 +40,7 @@ echo ListView::widget([
 <style>
     .comp_col {
         display: inline-block;
-        width: 49.8%;
+        width: 50%;
         vertical-align: top;
     }
     .blog_item_title.m20{
