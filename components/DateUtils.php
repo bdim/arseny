@@ -602,7 +602,7 @@ class DateUtils
 
 		if ($d < 0){
 			$m--;
-			$d = date("t") + $m;
+			$d = date("t") + $d;
 		}
 
 		if ($m < 0){

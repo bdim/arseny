@@ -67,4 +67,17 @@ echo ListView::widget([
 
 ?>
 
+<style>
+    @media screen and (max-device-width: 400px) {
+        .editable-input textarea.input-small{
+            min-width:  300px;
+        }
+    }
+    @media screen and (max-device-width: 500px) and (min-device-width: 401px) {
+        .editable-input textarea.input-small{
+            min-width:  400px;
+        }
+    }
+</style>
+
 

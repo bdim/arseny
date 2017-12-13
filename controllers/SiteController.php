@@ -267,7 +267,7 @@ class SiteController extends Controller
         $mimeType = $data->message->voice->mime_type;
         Files::add(['path' => 'photo/test.ogg', 'type_id' => Files::TYPE_AUDIO, 'params' => Json::encode(['mime-type' => $mimeType])]);*/
 
-        echo Json::encode(['event_id'=>'6']);
+        var_dump(Yii::$app->params['devicedetect']);
     }
 
     public function actionFlushblog(){

@@ -107,12 +107,16 @@ class BlogController extends Controller
         $filter['tag'] = Taxonomy::TAG_YAROSLAV;
         $dates[Taxonomy::TAG_YAROSLAV] = Blog::getDates($filter);
 
+        $age = DateUtils::age("2016-08-18");
+        $keyStop = str_pad(intval($age['y']),2,'0', STR_PAD_LEFT).str_pad(intval($age['m']),2,'0', STR_PAD_LEFT).str_pad(intval($age['d']),2,'0', STR_PAD_LEFT);
+
         $dd = [];
         foreach ($dates[Taxonomy::TAG_ARSENY] as $date){
             $age = DateUtils::age("2012-05-12", $date['pub_date']);
             $date['age'] = DateUtils::age("2012-05-12", $date['pub_date'], true);
             $key = str_pad(intval($age['y']),2,'0', STR_PAD_LEFT).str_pad(intval($age['m']),2,'0', STR_PAD_LEFT).str_pad(intval($age['d']),2,'0', STR_PAD_LEFT);
             $dd[$key][Taxonomy::TAG_ARSENY] = $date;
+            if ($key >= $keyStop) break;
         }
         foreach ($dates[Taxonomy::TAG_YAROSLAV] as $date){
             $age = DateUtils::age("2016-08-18", $date['pub_date']);
@@ -120,7 +124,12 @@ class BlogController extends Controller
             $key = str_pad(intval($age['y']),2,'0', STR_PAD_LEFT).str_pad(intval($age['m']),2,'0', STR_PAD_LEFT).str_pad(intval($age['d']),2,'0', STR_PAD_LEFT);
             $dd[$key][Taxonomy::TAG_YAROSLAV] = $date;
         }
-        ksort($dd);
+
+        $sort =  Yii::$app->request->get('sort') ? Yii::$app->request->get('sort') : 'ASC';
+        if ($sort == 'ASC')
+            ksort($dd);
+        else
+            krsort($dd);
 
         $_dd = [];
         foreach($dd as $d){
@@ -129,20 +138,10 @@ class BlogController extends Controller
         }
         $dd = $_dd;
 
-        $sort =  "SORT_". (Yii::$app->request->get('sort') ? Yii::$app->request->get('sort') : 'ASC');
-
         $provider = new ArrayDataProvider([
             'allModels' => $dd,
             'pagination' => [
                 'pageSize' => 10,
-            ],
-            'sort' => [
-                'attributes' => [
-                    'pub_date',
-                ],
-                'defaultOrder' => [
-                    'pub_date' => constant($sort),
-                ]
             ],
         ]);
 

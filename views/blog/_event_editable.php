@@ -53,13 +53,26 @@ $form = ActiveForm::begin(['id' => 'form-body-'.$data->id, 'fieldConfig' => ['te
 
 <div class="blog_item_one_body">
     <?
-    echo $form->field($data, 'body')->widget(Editable::className(), [
-        'url' => $controller.'/update',
-        'type' => 'wysihtml5',
-        'clientOptions' => [
-            'emptytext' => 'Текст',
-        ]
-    ]);
+    if (Yii::$app->params['devicedetect']['isDesktop']){
+        echo $form->field($data, 'body')->widget(Editable::className(), [
+            'url' => $controller.'/update',
+            'type' => 'wysihtml5',
+            'clientOptions' => [
+                'emptytext' => 'Текст',
+            ]
+        ]);
+    } else {
+        echo $form->field($data, 'body')->widget(Editable::className(), [
+            'url' => $controller.'/update',
+            'type' => 'textarea',
+            'mode' => 'pop',
+            'clientOptions' => [
+                'emptytext' => 'Текст',
+                'placeholder' => 'Текст'
+            ]
+        ]);
+    }
+
     ?>
 
 </div>

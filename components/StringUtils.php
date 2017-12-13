@@ -113,8 +113,10 @@ class StringUtils
         "",
         ""))
     {
+        if (empty($words[3]))
+            $words[3] = $words[2];
 
-        return \Yii::$app->i18n->format('{n, plural, =1{'.$words[0].'} =2{'.$words[1].'} =3{'.$words[1].'} =4{'.$words[1].'} one{'.$words[2].'} few{'.$words[2].'} many{'.$words[2].'} other{'.$words[2].'}}', ['n' => $number % 10], 'ru_RU');
+        return \Yii::$app->i18n->format('{n, plural, =0{'.$words[3].'} =1{'.$words[0].'} one{'.$words[0].'} few{'.$words[2].'} many{'.$words[2].'} other{'.$words[1].'}}', ['n' => $number], 'ru_RU');
     }
 
     public static function normalize($str)

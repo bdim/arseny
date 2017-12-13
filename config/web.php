@@ -6,14 +6,11 @@ $db = require(__DIR__ . '/db.php');
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'devicedetect'],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'werretgteghtrhyt',
-        ],
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
         ],
         'user' => [
             'identityClass' => 'app\models\User',
@@ -83,6 +80,9 @@ $config = [
                 ],
             ],
         ],
+        /*'cache' => [
+            'class' => 'yii\caching\FileCache',
+        ],*/
         'cache' => [
             'class' => 'yii\caching\MemCache',
         ],
@@ -92,7 +92,9 @@ $config = [
             'thousandSeparator' => ' ',
             'currencyCode' => 'EUR',
         ],
-
+        'devicedetect' => [
+            'class' => 'alexandernst\devicedetect\DeviceDetect'
+        ],
     ],
     'params' => $params,
     'sourceLanguage' => 'en-US',

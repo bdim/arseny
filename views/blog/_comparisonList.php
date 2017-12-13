@@ -37,6 +37,7 @@ use app\components\DateUtils;
     }
 
 
+
     /* события показываем отдельно */
     /*if (!empty($event))
         foreach ($event as $tag => $m)
