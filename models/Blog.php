@@ -155,16 +155,25 @@
                 $dates = [];
                 $in = 'IN';
                 if (!empty($filter['tag'])){
+                    $blogIds = [
+                        'Blog'  => [0],
+                        'Event' => [0],
+                        'Files' => [0],
+                    ];
                     $nodes = TaxonomyMap::find()->select(['model_id', 'model_name'])->where("`tid` = :tid ", [':tid' => $filter['tag']])->all();
                     foreach ($nodes as $node)
                         $blogIds[$node->model_name][] = $node->model_id;
                 } elseif (!empty($filter['notags'])){
+                    $blogIds = [
+                        'Blog'  => [0],
+                        'Event' => [0],
+                        'Files' => [0],
+                    ];
                     $nodes = TaxonomyMap::find()->select(['model_id', 'model_name'])->all();
                     foreach ($nodes as $node)
                         $blogIds[$node->model_name][] = $node->model_id;
 
                 }
-
                 /* Blog */
                 $query = Blog::find()->select('DATE(`publish_date`) as pub_date');
                 if (!empty($filter['notags'])){
@@ -176,6 +185,7 @@
                 } else {
                     $query->where('(`title` <> "" OR `body` <> "" OR `photo` <> "")')->groupBy('pub_date');
                 }
+
 
                 $query = $query->all();
 
@@ -196,7 +206,7 @@
 
                 foreach ($query as $q) {
                     if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date,0,4) == $filter['year']))
-                        $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'blog' => true];
+                        $dates[$q->pub_date] = ['pub_date' => $q->pub_date, 'Event' => true];
                 }
 
                 /* теги прикреплены только к блогу */

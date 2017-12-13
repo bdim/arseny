@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use app\components\DateUtils;
+use app\components\StringUtils;
+use app\models\Taxonomy;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
@@ -26,7 +29,25 @@ class BlogController extends Controller
      */
     public function behaviors()
     {
-        return [];
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
+                    [
+                        'actions' => ['comparison'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return !Yii::$app->user->isGuest;
+                        }
+                    ]
+                ],
+        ]];
     }
 
     /**
@@ -77,4 +98,57 @@ class BlogController extends Controller
         ]);
     }
 
+
+    public function actionComparison(){
+
+        $filter['tag'] = Taxonomy::TAG_ARSENY;
+        $dates[Taxonomy::TAG_ARSENY] = Blog::getDates($filter);
+
+        $filter['tag'] = Taxonomy::TAG_YAROSLAV;
+        $dates[Taxonomy::TAG_YAROSLAV] = Blog::getDates($filter);
+
+        $dd = [];
+        foreach ($dates[Taxonomy::TAG_ARSENY] as $date){
+            $age = DateUtils::age("2012-05-12", $date['pub_date']);
+            $date['age'] = DateUtils::age("2012-05-12", $date['pub_date'], true);
+            $key = str_pad(intval($age['y']),2,'0', STR_PAD_LEFT).str_pad(intval($age['m']),2,'0', STR_PAD_LEFT).str_pad(intval($age['d']),2,'0', STR_PAD_LEFT);
+            $dd[$key][Taxonomy::TAG_ARSENY] = $date;
+        }
+        foreach ($dates[Taxonomy::TAG_YAROSLAV] as $date){
+            $age = DateUtils::age("2016-08-18", $date['pub_date']);
+            $date['age'] = DateUtils::age("2016-08-18", $date['pub_date'], true);
+            $key = str_pad(intval($age['y']),2,'0', STR_PAD_LEFT).str_pad(intval($age['m']),2,'0', STR_PAD_LEFT).str_pad(intval($age['d']),2,'0', STR_PAD_LEFT);
+            $dd[$key][Taxonomy::TAG_YAROSLAV] = $date;
+        }
+        ksort($dd);
+
+        $_dd = [];
+        foreach($dd as $d){
+            $age = $d[2]['age'] ? $d[2]['age'] : $d[8]['age'];
+            $_dd[$age][] = $d;
+        }
+        $dd = $_dd;
+
+        $sort =  "SORT_". (Yii::$app->request->get('sort') ? Yii::$app->request->get('sort') : 'ASC');
+
+        $provider = new ArrayDataProvider([
+            'allModels' => $dd,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'attributes' => [
+                    'pub_date',
+                ],
+                'defaultOrder' => [
+                    'pub_date' => constant($sort),
+                ]
+            ],
+        ]);
+
+        return $this->render('comparison', [
+            'dataProvider' => $provider,
+            'model'        => $dates,
+        ]);
+    }
 }

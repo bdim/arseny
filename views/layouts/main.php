@@ -48,6 +48,7 @@ if (Yii::$app->user->isGuest) {
 } else {
 
     $menuItems[] = ['label' => 'Блог', 'url' => ['/blog']];
+    $menuItems[] = ['label' => 'Хрон', 'url' => ['/blog/comparison']];
     $menuItems[] = ['label' => 'Статьи', 'url' => ['/article']];
     if (User::isUserAdmin()){
         $menuItems[] = [
@@ -58,9 +59,6 @@ if (Yii::$app->user->isGuest) {
 
             ],
         ];
-
-        /*$menuItems[] = ['label' => 'Пользователи', 'url' => ['/user/list']];
-        $menuItems[] = ['label' => 'События', 'url' => ['/event/list']];*/
     }
 
     $menuItems[] = '<li>'
