@@ -15,11 +15,10 @@ use app\components\DateUtils;
             $files[$tag] = [];
         $files[$tag] = array_merge($files[$tag],  Files::getItemsForDay($date['pub_date'], true));
         $blog [$tag][] = Blog::getItemsForDay($date['pub_date']);
-        $event[$tag][] = Event::getItemsForDay($date['pub_date']);
+        // $event[$tag][] = Event::getItemsForDay($date['pub_date']);
     }
-//\yii\helpers\VarDumper::dump($files,10,1);die;
-    $tags = [];
 
+    $tags = [];
     $out = [];
     if (!empty($blog)){
         foreach ($blog as $tag =>$m)
@@ -40,7 +39,8 @@ use app\components\DateUtils;
 
     /* события показываем отдельно */
     /*if (!empty($event))
-        foreach ($event as $tag => $items)
+        foreach ($event as $tag => $m)
+            foreach ($m as $items)
             foreach ($items as $item)  {
                 $out['event'][$tag][$item->id]['title'] = Yii::$app->formatter->asDate($item['date_start'],'php:d.m.Y l') .
                     ( $item['date_start'] != $item['date_end'] ? " - ". Yii::$app->formatter->asDate($item['date_end'],'php:d.m.Y l') : '');

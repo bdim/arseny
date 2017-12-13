@@ -39,7 +39,7 @@ class BlogController extends Controller
                         'roles' => ['@']
                     ],
                     [
-                        'actions' => ['comparison'],
+                        'actions' => ['comparison','update'],
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => function ($rule, $action) {

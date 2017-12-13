@@ -13,21 +13,21 @@ $this->title = 'Хрон';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
-<div class="filter-form">
+<!--<div class="filter-form">
     <form method="get" action="">
 
 
         <label for="tag">Сортировать: </label>
         <select name="sort">
-            <? $selected = Yii::$app->request->get('sort'); ?>
-            <option value="DESC" <?= ($selected != "ASC") ? 'selected' : ''?>>по убыванию</option>
-            <option value="ASC"  <?= ($selected == "ASC") ? 'selected' : ''?>>по возрастанию</option>
+            <?/* $selected = Yii::$app->request->get('sort'); */?>
+            <option value="DESC" <?/*= ($selected == "DESC") ? 'selected' : ''*/?>>по убыванию</option>
+            <option value="ASC"  <?/*= ($selected != "DESC") ? 'selected' : ''*/?>>по возрастанию</option>
         </select>
 
         <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <input type="submit" value="фильтровать">
     </form>
-</div>
+</div>-->
 <?
 echo ListView::widget([
         'dataProvider' => $dataProvider,
