@@ -24,6 +24,7 @@
         const COMMAND_ADD_AUDIO = '/addAudio';
         const COMMAND_LAST_BLOG = 'lastBlog';
         const COMMAND_LAST_FILES= 'lastFiles';
+        const COMMAND_LOGIN     = '/login';
 
         public $chatId;
         public $data;
@@ -36,18 +37,20 @@
             'последние файлы'   => TelegramBot::COMMAND_LAST_FILES,
         ];
 
-        public function __construct($data, $config =[]){
+        public function __construct($data = null, $config =[]){
             parent::__construct($config);
 
             $this->data = $data;
-            //Получаем chat_id
-            if (isset($data->message))
-                $this->chatId = $data->message->from->id;
-            elseif (isset($data->callback_query))
-                $this->chatId = $data->callback_query->from->id;
+            if (!empty($data)){
+                //Получаем chat_id
+                if (isset($data->message))
+                    $this->chatId = $data->message->from->id;
+                elseif (isset($data->callback_query))
+                    $this->chatId = $data->callback_query->from->id;
 
-            $this->_user = User::findOne(['telegram_id' => $this->chatId]);
-
+                if (!empty($this->chatId))
+                    $this->_user = User::findOne(['telegram_id' => $this->chatId]);
+            }
             $this->log(['data' => $this->data, 'cachedCommand' => $this->cachedCommand], null);
         }
 
@@ -110,8 +113,11 @@
             $this->clearCache('tag');
         }
 
-        protected function getCachedCommand(){
-            return Yii::$app->cache->get($this->key);
+        protected function getCachedCommand($key = null){
+            if (is_null($key))
+                $key = $this->key;
+
+            return Yii::$app->cache->get($key);
         }
 
         protected function clearCommandCache(){
@@ -209,6 +215,15 @@
             /* проверка авторизации */
             if (empty($this->_user))
                 return;
+
+            if ($this->getCachedCommand('telegram-command-') == TelegramBot::COMMAND_LOGIN){
+                if (!empty($this->data->message->text)){
+                    $code = intval($this->data->message->text);
+                    Yii::$app->cache->set("telegram-login-".$code, $this->_user->id, 10);
+                    $response['text'] = 'вы вошли на сайт';
+                    $this->sendMessage($response);
+                }
+            }
 
             /* Новая запись */
             if ($this->cachedCommand == TelegramBot::COMMAND_ADD_TEXT){

@@ -110,6 +110,30 @@ class SiteController extends Controller
         ]);
     }
 
+    public function actionTelegramCode(){
+        $code = rand(10001,99999);
+        Yii::$app->cache->set("telegram-login-".$code, -1 , 60);
+        $bot = new TelegramBot();
+        $bot->executeCommands([TelegramBot::COMMAND_LOGIN]);
+
+        echo $code;
+    }
+    public function actionTelegramLogin($code){
+        $login = false;
+        while (!$login) {
+            $c = Yii::$app->cache->get("telegram-login-".$code);
+            if (intval($c) > 0){
+                $user = User::findById(intval($c));
+                if (!empty($user))
+                    Yii::$app->user->login($user, 3600*24*30);
+            }
+
+            if (intval($c) != -1)
+                $login = true;
+            else
+                sleep(1);
+        }
+    }
     /**
      * Logout action.
      *
@@ -267,7 +291,7 @@ class SiteController extends Controller
         $mimeType = $data->message->voice->mime_type;
         Files::add(['path' => 'photo/test.ogg', 'type_id' => Files::TYPE_AUDIO, 'params' => Json::encode(['mime-type' => $mimeType])]);*/
 
-        var_dump(Yii::$app->params['devicedetect']);
+        //var_dump(Yii::$app->params['devicedetect']);
     }
 
     public function actionFlushblog(){
