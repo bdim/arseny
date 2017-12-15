@@ -214,7 +214,7 @@
 
             /* проверка авторизации */
             if (empty($this->_user))
-                return;
+                return false;
 
             if ($this->getCachedCommand('telegram-command-') == TelegramBot::COMMAND_LOGIN){
                 if (!empty($this->data->message->text)){
@@ -223,6 +223,7 @@
                     $response['text'] = 'вы вошли на сайт';
                     $this->sendMessage($response);
                 }
+                return true;
             }
 
             /* Новая запись */

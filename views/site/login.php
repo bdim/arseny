@@ -84,7 +84,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <div class="site-login-telegram">
-        <a href="JS:void;">Войти через Telergam</a>
+        <a href="#">Войти через Telergam</a>
     </div>
     <div class="timer" style="display: none;">Код действует еще: <span class="seconds">60</span> сек</div>
 

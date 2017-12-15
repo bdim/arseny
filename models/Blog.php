@@ -138,6 +138,15 @@
             return $blog;
         }
 
+        public static function getLastDate(){
+            $blog = Yii::$app->cache->getOrSet('blog-last-date-', function() {
+                $query = Blog::find()->orderBy('publish_date DESC')->one();
+                return $query;
+            } ,3600*24, static::getCacheDependency());
+
+            return mb_substr($blog->publish_date,0,10);
+        }
+
         /* кеш */
         public static function getCacheDependency(){
             return new TagDependency(['tags' => static::CACHE_DEPENDENCY_KEY]);

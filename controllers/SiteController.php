@@ -111,7 +111,7 @@ class SiteController extends Controller
     }
 
     public function actionTelegramCode(){
-        $code = rand(10001,99999);
+        $code = rand(100,999);
         Yii::$app->cache->set("telegram-login-".$code, -1 , 60);
         $bot = new TelegramBot();
         $bot->executeCommands([TelegramBot::COMMAND_LOGIN]);
