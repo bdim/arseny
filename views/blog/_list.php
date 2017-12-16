@@ -77,8 +77,8 @@ use app\components\DateUtils;
 ?>
 
 <? if (!empty($out['body']) || !empty($out['media'])){ ?>
-<div class="blog_item">
-    <div class="blog_item_title m20 pt20"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?>
+<div class="blog_item" id="blog-<?= $model['pub_date'] ?>">
+    <div class="blog_item_title m20 pt20"><a class="link-" href="/blog#blog-<?= $model['pub_date'] ?>"><?= Yii::$app->formatter->asDate($model['pub_date'],'php:d.m.Y l') ?></a>
         <?= !empty($age) ? '<span class="blog_item_age">('.implode(", ", $age).')</span>' : '';?></div>
     <div class="blog_item_body m20 "><?= $out['body'];?></div>
     <div class="blog_item_media"><?= $out['media'] ?></div>
@@ -88,8 +88,8 @@ use app\components\DateUtils;
 
 <? if (!empty($out['event']))
     foreach ($out['event'] as $eventOut){?>
-<div class="blog_item event_body_item">
-    <div class="blog_item_title m20 pt20"><?= $eventOut['title'];?></div>
+<div class="blog_item event_body_item"  id="event-<?= $model['pub_date'] ?>">
+    <div class="blog_item_title m20 pt20"><a class="link-" href="/blog#event-<?= $model['pub_date'] ?>"><?= $eventOut['title'];?></a></div>
     <div class="blog_item_body m20 "><?= $eventOut['body'];?></div>
     <div class="blog_item_media"><?= $eventOut['media'] ?></div>
 </div>

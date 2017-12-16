@@ -132,7 +132,13 @@ a.desc:after {
 .pt20 {
     padding-top: 20px;
 }
-
+a.link-{
+    text-decoration: none !important;
+}
+a.link-:hover{
+    opacity: 0.6;
+    text-decoration: none !important;
+}
 /* blog */
 
 .blog_item_media {
