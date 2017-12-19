@@ -219,9 +219,15 @@
             if ($this->getCachedCommand('telegram-command-') == TelegramBot::COMMAND_LOGIN){
                 if (!empty($this->data->message->text)){
                     $code = intval($this->data->message->text);
-                    Yii::$app->cache->set("telegram-login-".$code, $this->_user->id, 10);
-                    $response['text'] = 'вы вошли на сайт';
-                    $this->sendMessage($response);
+                    $c = Yii::$app->cache->get("telegram-login-".$code);
+                    if (intval($c) == -1){
+                        Yii::$app->cache->set("telegram-login-".$code, $this->_user->id, 10);
+                        $response['text'] = 'вы вошли на сайт';
+                        $this->sendMessage($response);
+                    } else {
+                        $response['text'] = 'код просрочен, попробуйте снова';
+                        $this->sendMessage($response);
+                    }
                 }
                 return true;
             }

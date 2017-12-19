@@ -44,7 +44,7 @@ NavBar::begin([
  
 if (Yii::$app->user->isGuest) {
     //$menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
-    $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+    $menuItems[] = ['label' => 'Войти на сайт', 'url' => ['/site/login']];
 } else {
 
     $menuItems[] = ['label' => 'Блог', 'url' => ['/blog']];
@@ -64,7 +64,7 @@ if (Yii::$app->user->isGuest) {
     $menuItems[] = '<li>'
         . Html::beginForm(['/site/logout'], 'post')
         . Html::submitButton(
-            'Logout (' . Yii::$app->user->identity->info . ')',
+            'Выйти (' . Yii::$app->user->identity->info . ')',
             ['class' => 'btn btn-link logout']
         )
         . Html::endForm()

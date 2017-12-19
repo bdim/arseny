@@ -122,7 +122,7 @@ a.desc:after {
 }
 
 /* site */
-
+a {cursor: pointer;}
 .m20{
     margin: 20px;
 }
