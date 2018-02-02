@@ -178,8 +178,11 @@ a.link-:hover{
 .blog_item_title {
     font-weight: bold;
 }
+.blog_item_one_title a,
 .blog_item_one_title{
     color: #DD1144;
+}
+.blog_item_one_title{
     display: block;
 }
 .blog_item_one_taxonomy {

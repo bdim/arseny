@@ -108,4 +108,14 @@
 
             return $items;
         }
+
+        public static function getLastDate(){
+            $blog = Yii::$app->cache->getOrSet('event-last-date-', function() {
+                $query = Event::find()->orderBy('publish_date DESC')->one();
+                return $query;
+            } ,3600*24, static::getCacheDependency());
+
+            return mb_substr($blog->publish_date,0,10);
+        }
+
     }

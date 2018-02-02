@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\User;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\debug\models\timeline\DataProvider;
@@ -28,12 +29,22 @@ class TelegramController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['webhook'],
+                //'only' => ['webhook'],
                 'rules' => [
                     [
+                        'actions' => ['logview', 'setwebhook'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            return User::isUserAdmin();
+                        }
+                    ],
+                    [
+                        'actions' => ['webhook'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
+
                 ],
             ],
         ];
@@ -88,17 +99,19 @@ class TelegramController extends Controller
     }
 
     public function actionLogview(){
-        $lines = file_get_contents('../../telegramlog.txt');
+        if (User::isUserAdmin()){
+            $lines = file_get_contents('../../telegramlog.txt');
 
-        $lines = explode("\n", $lines);
-        foreach ($lines as $line) {
-            $line_date = mb_substr($line,0,22);
-            $line_json = mb_substr($line,22);
+            $lines = explode("\n", $lines);
+            foreach ($lines as $line) {
+                $line_date = mb_substr($line,0,22);
+                $line_json = mb_substr($line,22);
 
-            echo $line_date. "<br>";
-            VarDumper::dump(json_decode($line_json), 10, 1);
-            echo "<br>";
+                echo $line_date. "<br>";
+                VarDumper::dump(json_decode($line_json), 10, 1);
+                echo "<br>";
 
+            }
         }
     }
 }

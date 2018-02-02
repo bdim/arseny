@@ -156,7 +156,10 @@
             foreach ($commands as $command){
 
                 // запоминаем текущую команду
-                Yii::$app->cache->set($this->key, $command);
+                if (empty($this->chatId))
+                    Yii::$app->cache->set($this->key, $command, 60);
+                else
+                    Yii::$app->cache->set($this->key, $command);
 
                 $action = 'command'.StringUtils::mb_ucfirst(str_replace("/","",$command));
 
