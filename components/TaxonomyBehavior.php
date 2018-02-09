@@ -10,9 +10,9 @@ use yii\helpers\VarDumper;
 
 class TaxonomyBehavior extends Behavior
 {
-    public $_tag; // Это про ког пишем, есть еще keywords - они отдельно
-    public $_tagsIds = null;
-    public $_tagsNames = null;
+    protected $_tag;
+    protected $_tagsIds = null;
+    protected $_tagsNames = null;
 
     public function events()
     {
@@ -31,28 +31,48 @@ class TaxonomyBehavior extends Behavior
 
     public function afterSave($event)
     {
-        if (!empty($this->tag)){ // про кого пишем
+        if (!empty($this->_tag)){
 
             $className = end(explode("\\", $this->owner->className()));
 
-            // удаляем все теги словаря VID_BLOG_TAG
-            Yii::$app->db->createCommand('DELETE m.* FROM {{%taxonomy_map}} m LEFT JOIN {{%taxonomy_data}} t ON m.`tid` = t.`tid`
-                                                  WHERE m.`model_id` = :model_id AND m.`model_name` = :model_name AND t.`vid` = :vid;',
-                [
-                    ':model_id' => $this->owner->id,
-                    ':model_name' => $className,
-                    ':vid'     => Taxonomy::VID_BLOG_TAG,
-                ]
-            )->execute();
+            if (!is_array($this->_tag))
+                $this->_tag = [$this->_tag];
 
-            if (!is_array($this->tag))
-                $this->tag = [$this->tag];
+            $tagArray = [];
+            $vocArray = [];
+            foreach ($this->_tag as $tag){
+                $str = explode(":", $tag);
 
-            foreach ($this->tag as $tag){
-                if (is_numeric($tag))
-                    $tagId = $tag;
-                else
-                    $tagId = Taxonomy::getIdByName($tag, Taxonomy::VID_BLOG_TAG);
+                if (!empty($str[1])){
+                    $tagArray[] = $str[0];
+                    $vocArray[$str[1]]  = $str[1];
+                } else {
+                    if (is_numeric($tag))
+                        $tagId = $tag;
+                    else
+                        $tagId = Taxonomy::getIdByName($tag, Taxonomy::VID_BLOG_TAG);
+
+                    $tagArray[] = $tagId;
+                }
+            }
+
+            if (empty($vocArray))
+                $vocArray = [Taxonomy::VID_BLOG_TAG];
+
+            foreach ($vocArray as $voc)
+                // удаляем все теги словаря
+                Yii::$app->db->createCommand('DELETE m.* FROM {{%taxonomy_map}} m LEFT JOIN {{%taxonomy_data}} t ON m.`tid` = t.`tid`
+                                                      WHERE m.`model_id` = :model_id AND m.`model_name` = :model_name AND t.`vid` = :vid;',
+                    [
+                        ':model_id' => $this->owner->id,
+                        ':model_name' => $className,
+                        ':vid'     => $voc,
+                    ]
+                )->execute();
+
+
+
+            foreach ($tagArray as $tagId){
 
                 if (!empty($tagId))
                     Yii::$app->db->createCommand('INSERT IGNORE into {{%taxonomy_map}} (`model_id`, `model_name`, `tid` ) VALUES (:model_id, :model_name, :tid) ',
@@ -78,27 +98,38 @@ class TaxonomyBehavior extends Behavior
         return $this->_tagsIds;
     }
 
-    public function getTag(){
-        return $this->getTagsIds();
-    }
-    public function setTag($tag){
-        $this->tag = $tag;
-    }
-
-    public function getTagNames(){
-
-        if (is_null($this->_tagsNames)){
-            $this->_tagsNames = [];
-            if (!empty($this->tagsIds))
-                foreach ($this->tagsIds as $id)
-                    $this->_tagsNames[$id] = Taxonomy::getNameById($id);
+    public function getTag($vocId = null){
+        $tags = [];
+        foreach ($this->getTagsIds() as $id){
+            $tagVoc = Taxonomy::getVocByTagId($id);
+            if (empty($vocId) || $vocId == $tagVoc )
+                $tags[] = $id. ":" . $tagVoc;
         }
 
-        return $this->_tagsNames;
+        return $tags;
+    }
+
+    public function setTag($tag){
+        $this->_tag = $tag;
     }
 
 
-    public function addKeywords($keywords){
+    public function getTagNames($vocId = 0){
+        if (is_null($this->_tagsNames[$vocId])){
+            $this->_tagsNames[$vocId] = [];
+            if (!empty($this->tagsIds))
+                foreach ($this->tagsIds as $id){
+                    $tagVoc = Taxonomy::getVocByTagId($id);
+                    if (empty($vocId) || $vocId == $tagVoc )
+                        $this->_tagsNames[$vocId][$id] = Taxonomy::getNameById($id);
+                }
+        }
+
+        return $this->_tagsNames[$vocId];
+    }
+
+
+    public function attachTag($keywords){
         if (empty($keywords)) return;
 
         if (!is_array($keywords))

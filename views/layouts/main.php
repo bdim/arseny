@@ -56,7 +56,8 @@ if (Yii::$app->user->isGuest) {
             'items' => [
                 ['label' => 'Пользователи', 'url' => ['/user/list']],
                 ['label' => 'События', 'url' => ['/event/list']],
-                ['label' => 'Сброс кеша', 'url' => ['/site/flushblog']],
+                ['label' => 'Сброс кеша блога', 'url' => ['/site/flushblog']],
+                ['label' => 'Сброс кеша', 'url' => ['/site/flushcache']],
             ],
         ];
     }

@@ -1,6 +1,7 @@
 <?php     	
     namespace app\models;
      
+    use app\components\RenderCache;
     use app\components\StringUtils;
     use Yii;
     use yii\base\NotSupportedException;
@@ -25,6 +26,7 @@
     class Taxonomy extends ActiveRecord
     {
         const VID_KEYWORDS  = 5; // ключевые слова
+        const VID_THEME     = 3; // тематика
         const VID_BLOG_TAG  = 1; // про кого пишем
 
         const TAG_ARSENY   = 2;
@@ -103,15 +105,32 @@
          */
         public static function getNameById($id)
         {
-            $tag =  static::findOne(['tid' => $id]);
+            $result = Yii::$app->cache->getOrSet(RenderCache::cacheId('getNameById-'.$id),function() use ($id) {
 
-            $name = strval($tag->name);
-            if ($tag->vid == Taxonomy::VID_BLOG_TAG)
-                $name = StringUtils::mb_ucfirst($name);
+                $tag =  static::findOne(['tid' => $id]);
 
-            return $name;
+                $name = strval($tag->name);
+                if ($tag->vid == Taxonomy::VID_BLOG_TAG)
+                    $name = StringUtils::mb_ucfirst($name);
+                return $name;
+
+            } ,3600*24, static::getCacheDependency());
+
+            return $result;
         }
 
+        public static function getVocByTagId($id)
+        {
+            $result = Yii::$app->cache->getOrSet(RenderCache::cacheId('getVocByTagId-'.$id),function() use ($id) {
+
+                $tag =  static::findOne(['tid' => $id]);
+                $voc = strval($tag->vid);
+                return $voc;
+
+            } ,3600*24, static::getCacheDependency());
+
+            return $result;
+        }
 
         public static function addTag($name, $vid = Taxonomy::VID_KEYWORDS){
 
@@ -128,14 +147,15 @@
 
         /* кеш */
         public static function getCacheDependency(){
-            return new TagDependency(['tags' => static::CACHE_DEPENDENCY_KEY]);
+            return RenderCache::getCacheDependency(static::CACHE_DEPENDENCY_KEY);
         }
+
         public static function flushCache(){
-            TagDependency::invalidate(Yii::$app->cache, static::CACHE_DEPENDENCY_KEY);
+            RenderCache::flushCache(static::CACHE_DEPENDENCY_KEY);
         }
 
         public static function getVocabularyTags($vid){
-            $result = Yii::$app->cache->getOrSet('vocabularyTags-'.$vid,function() use ($vid) {
+            $result = Yii::$app->cache->getOrSet(RenderCache::cacheId('vocabularyTags-'.$vid),function() use ($vid) {
 
                 $res = static::find()->where('`vid` = :vid', [':vid' => $vid])->orderBy('`weight` ASC')->all();
                 return $res;

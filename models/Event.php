@@ -1,6 +1,7 @@
 <?php     	
     namespace app\models;
      
+    use app\components\RenderCache;
     use app\components\StringUtils;
     use app\components\TaxonomyBehavior;
     use Yii;
@@ -93,12 +94,13 @@
 
         /* кеш */
         public static function getCacheDependency(){
-            return new TagDependency(['tags' => Blog::CACHE_DEPENDENCY_KEY]);
+            return RenderCache::getCacheDependency(Blog::CACHE_DEPENDENCY_KEY);
         }
 
         public static function flushCache(){
-            TagDependency::invalidate(Yii::$app->cache, Blog::CACHE_DEPENDENCY_KEY);
+            RenderCache::flushCache(Blog::CACHE_DEPENDENCY_KEY);
         }
+
 
         public static function getItemsForDay($date){
             $items = Yii::$app->cache->getOrSet('event-for-date-'.$date, function() use ($date) {

@@ -1,6 +1,7 @@
 <?php     	
     namespace app\models;
      
+    use app\components\RenderCache;
     use Yii;
     use yii\base\NotSupportedException;
     use yii\behaviors\TimestampBehavior;
@@ -147,13 +148,14 @@
             return mb_substr($blog->publish_date,0,10);
         }
 
+
         /* кеш */
         public static function getCacheDependency(){
-            return new TagDependency(['tags' => static::CACHE_DEPENDENCY_KEY]);
+            return RenderCache::getCacheDependency(static::CACHE_DEPENDENCY_KEY);
         }
 
         public static function flushCache(){
-            TagDependency::invalidate(Yii::$app->cache, static::CACHE_DEPENDENCY_KEY);
+            RenderCache::flushCache(static::CACHE_DEPENDENCY_KEY);
         }
 
         /* массив дат с сообщениями и/или фотками */

@@ -301,4 +301,11 @@ class SiteController extends Controller
             echo 'Flushblog';
         }
     }
+
+    public function actionFlushcache(){
+        if (!Yii::$app->user->isGuest) {
+            \Yii::$app->cache->flush();
+        }
+    }
+
 }
