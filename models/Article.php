@@ -98,7 +98,7 @@
 
             $article->setAttributes($attributes);
             if ($article->save()){
-                $article->addKeywords($keywords);
+                $article->attachTag($keywords);
                 return $article->id;
             }
         }

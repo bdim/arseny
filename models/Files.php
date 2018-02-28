@@ -136,6 +136,11 @@
             $type = $params['type_id'];
             $path = $params['path'];
 
+            // ищем дубли
+            $f0 = Files::findbyPath($path);
+            if (!empty ($f0)) return false;
+
+            // проверяем разиер
             try {
                 if (!$info = getimagesize(UPLOAD_PATH . '/' . $path))
                     return false;
@@ -154,11 +159,6 @@
                 return false;
             }
 
-
-            // ищем дубли
-            $f0 = Files::findbyPath($path);
-            if (!empty ($f0)) return false;
-
             $f = new Files();
             $f->setAttributes($params);
 
@@ -171,12 +171,14 @@
                         'message' => 'Exif error: '.$path.'; '.$e->getMessage(),
                         'context' => 'Files::add'
                     ]);
-                    static::renameFile(UPLOAD_PATH . '/' . $path, UPLOAD_PATH . '/errorFiles/' . $path);
 
-                    return false;
+                    if (empty($date)){
+                        static::renameFile(UPLOAD_PATH . '/' . $path, UPLOAD_PATH . '/errorFiles/' . $path);
+                        return false;
+                    }
                 }
 
-                if (empty($exif['DateTimeOriginal']))
+                if (empty($exif['DateTimeOriginal']) && empty($date))
                     return false;
             }
 
@@ -205,12 +207,18 @@
                             static::importFilesFromFolder($path.'/'.$entry, $type_id, $checkExifData, $dateInFilenameFormat, $fileParams);
                         }
                     } elseif ($entry != 'params.txt') {
+
+                        $f0 = Files::findbyPath($path);
+                        if (!empty ($f0)) return false;
+
                         $date = null;
-                        if (!$checkExifData && !empty($dateInFilenameFormat)){
+                        if (!empty($dateInFilenameFormat)){
                             preg_match_all($dateInFilenameFormat['pattern'],$entry, $matches);
                             $d = $dateInFilenameFormat['date'];
-                            $date = $matches[$d['y']][0].'-'.$matches[$d['m']][0].'-'.$matches[$d['d']][0].' '
-                                .$matches[$d['h']][0].':'.$matches[$d['i']][0].':'.$matches[$d['s']][0];
+
+                            if (!empty($matches[$d['y']][0]))
+                                $date = $matches[$d['y']][0].'-'.$matches[$d['m']][0].'-'.$matches[$d['d']][0].' '
+                                    .$matches[$d['h']][0].':'.$matches[$d['i']][0].':'.$matches[$d['s']][0];
                         }
 
                         Files::add($fileParams + [

@@ -241,8 +241,8 @@ class SiteController extends Controller
 
     public function actionImportfoto(){
         if (!Yii::$app->user->isGuest) {
-            $format = null;
-            /*$format = [
+            //$format = null;
+            $format = [
                 'pattern' => "/([0-9]{4})-([0-9]{2})-([0-9]{2})_([0-9]{2})-([0-9]{2})-([0-9]{2})/",
                 'date' => [
                     'y' =>1,
@@ -253,7 +253,7 @@ class SiteController extends Controller
                     's' =>6
                 ]
 
-            ];*/
+            ];
             Files::importFilesFromFolder('photo_jpg',Files::TYPE_PHOTO, true, $format);
             Blog::flushCache();
             echo 'ok';

@@ -239,9 +239,15 @@
             if ($this->cachedCommand == TelegramBot::COMMAND_ADD_TEXT){
                 if (!empty($this->data->message->text)){
 
+                    $md5Key = 'blogLastText';
+                    $md5 = md5($this->data->message->text);
+
+                    $lastMd5 = $this->getCache($md5Key);
+                    $this->setCache($md5Key, $md5);
+
                     $text = "<p>".$this->data->message->text."</p>";
 
-                    if ($this->getCache('text') != $text){
+                    if ($md5 !=  $lastMd5){
 
                         $blog_id = $this->getCache('blog_id');
                         if (!empty($blog_id)){
@@ -257,8 +263,6 @@
                             $keyword = $this->getCache('tag');
                             $blog_id = Blog::add($item,$keyword);
                         }
-
-                        $this->setCache('text', $text);
                         $this->setCache('blog_id', $blog_id);
 
                         $response['text'] = 'записал';

@@ -110,7 +110,7 @@
 
             $blog->setAttributes($attributes);
             if ($blog->save()){
-                $blog->addKeywords($keywords);
+                $blog->attachTag($keywords);
                 return $blog->id;
             }
         }
