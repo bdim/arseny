@@ -225,7 +225,10 @@
                 $notagsDates = [];
                 if (empty($filter['tag'])){
                     /* Files */
-                    $query = Files::find()->select('DATE(`date_id`) as pub_date, event_id')->groupBy('pub_date')->all();
+                    $query = Files::find()->select('DATE(`date_id`) as pub_date, event_id')->groupBy('pub_date')
+                        ->where('event_id = 0')
+                        ->all();
+
                     foreach ($query as $q) {
                         if (empty($filter['year']) || (!empty($filter['year']) && mb_substr($q->pub_date, 0, 4) == $filter['year'])){
 

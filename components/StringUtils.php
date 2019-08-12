@@ -103,10 +103,10 @@ class StringUtils
 
     /**
      *
-     * @param $amount int числовое значение
-     * @param $ends   array массив окончаний Array("1 значение","2 значения","5 значений"[, "нет значений"]);
+     * @param $number int числовое значение
+     * @param $words   array массив окончаний Array("1 значение","2 значения","5 значений"[, "нет значений"]);
      *
-     * @return sprintf($endString, $amount);
+     * @return string;
      * Формат фраз окончаний sprintf(String, $amount)
      */
     public static function pluralEnd($number, $words = array("",
@@ -116,7 +116,11 @@ class StringUtils
         if (empty($words[3]))
             $words[3] = $words[2];
 
-        return \Yii::$app->i18n->format('{n, plural, =0{'.$words[3].'} =1{'.$words[0].'} one{'.$words[0].'} few{'.$words[2].'} many{'.$words[2].'} other{'.$words[1].'}}', ['n' => $number], 'ru_RU');
+        return \Yii::$app->i18n->messageFormatter->format(
+            '{n, plural, one{'.$words[0].'} few{'.$words[1].'} many{'.$words[2].'} other{'.$words[3].'}}',
+            ['n' => $number],
+            \Yii::$app->language
+        );
     }
 
     public static function normalize($str)
